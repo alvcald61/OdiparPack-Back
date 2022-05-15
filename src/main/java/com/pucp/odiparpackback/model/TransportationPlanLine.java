@@ -6,6 +6,10 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 public class TransportationPlanLine {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

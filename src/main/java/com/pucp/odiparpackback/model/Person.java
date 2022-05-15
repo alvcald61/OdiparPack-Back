@@ -6,6 +6,10 @@ import javax.persistence.*;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 public class Person {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

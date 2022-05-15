@@ -35,4 +35,6 @@ public class City {
   @OneToMany(mappedBy = "city", orphanRemoval = true)
   private Set<Client> clients = new LinkedHashSet<>();
 
+  @OneToMany(mappedBy = "fromCity", orphanRemoval = true)
+  private Set<Route> fromRoutes = new LinkedHashSet<>();
 }

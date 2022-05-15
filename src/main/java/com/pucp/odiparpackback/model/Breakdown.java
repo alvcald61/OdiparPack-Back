@@ -7,6 +7,10 @@ import javax.persistence.*;
 
 
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 public class Breakdown {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

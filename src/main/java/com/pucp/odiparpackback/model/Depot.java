@@ -6,6 +6,10 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 public class Depot {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

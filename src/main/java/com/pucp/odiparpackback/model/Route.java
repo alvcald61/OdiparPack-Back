@@ -5,6 +5,10 @@ import lombok.*;
 import javax.persistence.*;
 
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 public class Route {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

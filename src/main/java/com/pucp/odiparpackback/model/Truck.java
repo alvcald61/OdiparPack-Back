@@ -7,6 +7,10 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 public class Truck {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
