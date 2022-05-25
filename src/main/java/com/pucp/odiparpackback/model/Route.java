@@ -3,6 +3,7 @@ package com.pucp.odiparpackback.model;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @AllArgsConstructor
@@ -29,4 +30,9 @@ public class Route {
   @Column(name = "speeed")
   private Double speed;
 
+  private boolean connected;
+  
+  private Date initialBlockDate;
+  
+  private Date finalBlockDate;
 }

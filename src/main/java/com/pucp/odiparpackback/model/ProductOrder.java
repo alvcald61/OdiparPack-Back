@@ -15,15 +15,17 @@ import java.util.Date;
 @Getter
 @Setter
 public class ProductOrder {
+  //mandar
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false)
   private Long id;
 
-  @Temporal(TemporalType.DATE)
+  @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "registry_date")
   private Date registryDate;
 
+  //mandar
   @Column(name = "amount", nullable = false)
   private Double amount;
 
@@ -31,7 +33,7 @@ public class ProductOrder {
   @Column(name = "state")
   private OrderState state;
 
-  @Temporal(TemporalType.DATE)
+  @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "max_delivery_date")
   private Date maxDeliveryDate;
 
@@ -39,6 +41,7 @@ public class ProductOrder {
   @JoinColumn(name = "client_id")
   private Client client;
 
+  //mandar
   @ManyToOne
   @JoinColumn(name = "destination_id")
   private City destination;

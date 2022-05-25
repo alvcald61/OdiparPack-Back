@@ -27,6 +27,8 @@ public class City {
 
   @Column(name = "latitude", nullable = false)
   private String latitude;
+  
+  private String ubigeo;
 
   @Enumerated
   @Column(name = "region", nullable = false)

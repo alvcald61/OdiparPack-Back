@@ -7,12 +7,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController("/city")
+@RestController
+@RequestMapping("/city")
 public class CityController {
   
-  @Autowired
-  private CityService cityService;
-  
+  private final CityService cityService;
+
+  public CityController(CityService cityService) {
+    this.cityService = cityService;
+  }
+
   @GetMapping
   public ResponseEntity<?> getAllCities() {
     try {

@@ -9,7 +9,6 @@ import javax.persistence.Table;
 
 @Entity
 @AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
 @PrimaryKeyJoinColumn(name = "administrator_id")
