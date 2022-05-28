@@ -1,6 +1,9 @@
 package com.pucp.odiparpackback.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -31,8 +34,8 @@ public class Route {
   private Double speed;
 
   private boolean connected;
-  
+
   private Date initialBlockDate;
-  
+
   private Date finalBlockDate;
 }

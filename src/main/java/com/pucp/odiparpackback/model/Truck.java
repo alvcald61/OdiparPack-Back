@@ -1,6 +1,9 @@
 package com.pucp.odiparpackback.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.LinkedHashSet;
@@ -29,5 +32,11 @@ public class Truck {
 
   @OneToMany(mappedBy = "truck", orphanRemoval = true)
   private Set<Breakdown> breakdowns = new LinkedHashSet<>();
+
+  private Boolean available;
+
+  @ManyToOne
+  @JoinColumn(name = "current_city_id")
+  private City currentCity;
 
 }

@@ -5,5 +5,9 @@ import lombok.Data;
 import java.util.List;
 @Data
 public class AlgorithmResponseJson {
-  List<DepotsJson> depotList;
+  private Long ubigeo;
+  private String city;
+  private String amount;
+  private List<TruckJson> truckList;
+  private Double deportCost;
 }

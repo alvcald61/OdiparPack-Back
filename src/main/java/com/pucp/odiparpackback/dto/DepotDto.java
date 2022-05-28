@@ -1,14 +1,13 @@
 package com.pucp.odiparpackback.dto;
 
-import com.pucp.odiparpackback.model.City;
-import lombok.*;
-
-import javax.persistence.*;
+import lombok.Data;
 
 @Data
 public class DepotDto {
   private Long id;
-  
-  private CityDto city;
+
+  private String name;
+
+  private String cityUbigeo;
 
 }
