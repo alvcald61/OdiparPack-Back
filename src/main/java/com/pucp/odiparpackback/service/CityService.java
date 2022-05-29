@@ -52,4 +52,8 @@ public class CityService {
     return cityRepository.findByUbigeo(ubigeo);
   }
 
+  public CityDto findById(Long Id) {
+    return ObjectMapper.cityToDto(cityRepository.getById(Id));
+  }
+
 }

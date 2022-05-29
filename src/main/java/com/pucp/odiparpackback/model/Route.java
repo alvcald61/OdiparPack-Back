@@ -38,4 +38,12 @@ public class Route {
   private Date initialBlockDate;
 
   private Date finalBlockDate;
+
+  public Route(City fromCity, City toCity, Double distance, Double speed) {
+    this.fromCity = fromCity;
+    this.toCity = toCity;
+    this.distance = distance;
+    this.speed = speed;
+    this.connected = true;
+  }
 }

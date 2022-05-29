@@ -1,7 +1,9 @@
 package com.pucp.odiparpackback.config;
 
+import com.pucp.odiparpackback.model.City;
 import com.pucp.odiparpackback.repository.CityRepository;
 import com.pucp.odiparpackback.repository.DepotRepository;
+import com.pucp.odiparpackback.repository.RouteRepository;
 import com.pucp.odiparpackback.repository.TruckRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,6 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+
+import java.io.BufferedReader;
+
+import static org.apache.lucene.util.SloppyMath.haversinMeters;
 
 @Component
 @Order(1)
@@ -25,9 +31,17 @@ class FileLoader implements CommandLineRunner {
   @Autowired
   private TruckRepository truckRepository;
 
+  @Autowired
+  private RouteRepository routeRepository;
+
+  public double calculateDistanceInMeters(City city1, City city2) {
+    return haversinMeters(Double.parseDouble(city1.getLatitude()), Double.parseDouble(city1.getLongitude()),
+      Double.parseDouble(city2.getLatitude()), Double.parseDouble(city2.getLongitude()));
+  }
+
   @Override
   public void run(String... args) throws Exception {
-//    BufferedReader reader;
+    BufferedReader reader;
 //    logger.info("Cargando archivos de datos de ciudades");
 //    try {
 //      reader = new BufferedReader(new FileReader("D:/JavaProjects/OdiparPack-Back/src/main/resources/files/inf226.oficinas.txt"));
@@ -41,8 +55,8 @@ class FileLoader implements CommandLineRunner {
 //        City city = new City();
 //        city.setUbigeo(split[0]);
 //        city.setName(split[2]);
-//        city.setLongitude(split[3]);
-//        city.setLatitude(split[4]);
+//        city.setLatitude(split[3]);
+//        city.setLongitude(split[4]);
 //        if (split[5].equals("SELVA")) {
 //          city.setRegion(Region.JUNGLE);
 //        }
@@ -74,6 +88,31 @@ class FileLoader implements CommandLineRunner {
 //    depot3.setName("Almacén de Arequipa");
 //    depotRepository.save(depot3);
 //    logger.info("depots loaded");
+//    logger.trace("loading Routes");
+
+//    try {
+//      reader = new BufferedReader(new FileReader("D:/JavaProjects/OdiparPack-Back/src/main/resources/files/inf226.tramos.v.2.0.txt"));
+//      do {
+//        Route route = new Route();
+//        String line = reader.readLine();
+//        if (line == null) {
+//          break;
+//        }
+//        String[] split = line.split("=>");
+//        logger.info("{}", split);
+//        logger.info("{}", cityRepository.findByUbigeo(split[0]));
+//        logger.info("{}", cityRepository.findByUbigeo(split[1]));
+//        route.setFromCity(cityRepository.findByUbigeo(split[0]));
+//        route.setToCity(cityRepository.findByUbigeo(split[1]));
+//        route.setDistance(calculateDistanceInMeters(route.getFromCity(), route.getToCity()));
+//        route.setSpeed(0.0);
+//        route.setConnected(true);
+//        routeRepository.save(route);
+//      } while (true);
+//    } catch (Exception e) {
+//      logger.error("Error al cargar los archivos de datos", e);
+//    }
+//    logger.trace("Routes loaded");
   }
 
 }

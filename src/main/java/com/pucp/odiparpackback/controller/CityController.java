@@ -32,6 +32,15 @@ public class CityController {
     }
   }
 
+  @GetMapping("/{id}")
+  public ResponseEntity<ResponseJson<CityDto>> getAllCities(@PathVariable Long id) {
+    try {
+      return ResponseEntity.ok(new ResponseJson<>(cityService.findById(id)));
+    } catch (GenericCustomException e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseJson<>(new ErrorJson(e.getMessage())));
+    }
+  }
+
   @PostMapping
   public ResponseEntity<ResponseJson<CityDto>> createCity(@RequestBody CityDto city) {
     try {

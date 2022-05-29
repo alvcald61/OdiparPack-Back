@@ -1,15 +1,17 @@
 package com.pucp.odiparpackback.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class RouteDto {
 
   private Long id;
 
-  private CityDto fromCity;
+  private String UbigeoFrom;
 
-  private CityDto toCity;
+  private String UbigeoTo;
 
   private Double distance;
 

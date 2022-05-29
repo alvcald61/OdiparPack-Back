@@ -2,6 +2,9 @@ package com.pucp.odiparpackback.dto;
 
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Data
 public class CityDto {
@@ -17,4 +20,6 @@ public class CityDto {
   private String ubigeo;
 
   private String region;
+
+  private List<RouteDto> connections = new ArrayList<>();
 }
