@@ -71,6 +71,11 @@
       <artifactId>lucene-spatial</artifactId>
       <version>8.2.0</version>
     </dependency>
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>${postgresql.version}</version>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
