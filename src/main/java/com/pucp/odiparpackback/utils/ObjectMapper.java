@@ -1,6 +1,9 @@
 package com.pucp.odiparpackback.utils;
 
-import com.pucp.odiparpackback.dto.*;
+import com.pucp.odiparpackback.dto.CityDto;
+import com.pucp.odiparpackback.dto.DepotDto;
+import com.pucp.odiparpackback.dto.ProductOrderDto;
+import com.pucp.odiparpackback.dto.TruckDto;
 import com.pucp.odiparpackback.enums.Region;
 import com.pucp.odiparpackback.model.City;
 import com.pucp.odiparpackback.model.Depot;
@@ -71,7 +74,6 @@ public class ObjectMapper {
   public static CityDto cityToDto(City source) {
     CityDto cityDto = map(source, CityDto.class);
     cityDto.setRegion(source.getRegion().name());
-    source.getFromRoutes().forEach(route -> cityDto.getConnections().add(new RouteDto(route.getId(), route.getFromCity().getUbigeo(), route.getToCity().getUbigeo(), route.getDistance(), route.getSpeed())));
     return cityDto;
   }
 
