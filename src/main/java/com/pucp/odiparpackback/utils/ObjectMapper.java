@@ -9,21 +9,28 @@ import com.pucp.odiparpackback.model.City;
 import com.pucp.odiparpackback.model.Depot;
 import com.pucp.odiparpackback.model.ProductOrder;
 import com.pucp.odiparpackback.model.Truck;
-import com.pucp.odiparpackback.service.CityService;
+import com.pucp.odiparpackback.repository.CityRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ObjectMapper {
 
   private static final ModelMapper modelMapper = new ModelMapper();
+  private static final Logger log = LogManager.getLogger(ObjectMapper.class);
+  private final CityRepository cityRepository;
 
-  private static final CityService cityService = new CityService();
+  public ObjectMapper(CityRepository cityRepository) {
+    this.cityRepository = cityRepository;
+  }
 
-
-  private static <T, U> T map(U source, Class<T> destinationClass) {
+  private <T, U> T map(U source, Class<T> destinationClass) {
     return modelMapper.map(source, destinationClass);
   }
 
-  public static ProductOrderDto productOrderToDto(ProductOrder source) {
+  public ProductOrderDto productOrderToDto(ProductOrder source) {
     ProductOrderDto productOrderDto = map(source, ProductOrderDto.class);
     productOrderDto.setState(source.getState());
     productOrderDto.setMaxDeliveryDate(source.getMaxDeliveryDate());
@@ -31,7 +38,7 @@ public class ObjectMapper {
     return productOrderDto;
   }
 
-  public static ProductOrder dtoToProductOrder(ProductOrderDto source) {
+  public ProductOrder dtoToProductOrder(ProductOrderDto source) {
     ProductOrder productOrder = map(source, ProductOrder.class);
     productOrder.setState(source.getDeliveryState());
     productOrder.setMaxDeliveryDate(source.getMaxDeliveryDate());
@@ -39,31 +46,39 @@ public class ObjectMapper {
     return productOrder;
   }
 
-  public static TruckDto truckToDto(Truck source) {
+  public TruckDto truckToDto(Truck source) {
+
     TruckDto truckDto = map(source, TruckDto.class);
     truckDto.setUbigeo(source.getCurrentCity().getUbigeo());
     return truckDto;
   }
 
-  public static Truck dtoToTruck(TruckDto source) {
-    Truck truck = map(source, Truck.class);
-    City city = cityService.findByUbigeo(source.getUbigeo());
-    if (city == null) {
-      throw new IllegalArgumentException("No se encontro la ciudad con ubigeo: " + source.getUbigeo());
+  public Truck dtoToTruck(TruckDto source) {
+    try {
+      Truck truck = map(source, Truck.class);
+      System.out.println(cityRepository);
+      City city = cityRepository.findByUbigeoCuston(source.getUbigeo()).get(0);
+      if (city == null) {
+        throw new IllegalArgumentException("No se encontro la ciudad con ubigeo: " + source.getUbigeo());
+      }
+      truck.setCurrentCity(city);
+      return truck;
+    } catch (IllegalArgumentException e) {
+      log.error(source.getUbigeo() + " no es un ubigeo valido");
+      log.error(e.getMessage());
+      throw new RuntimeException(e);
     }
-    truck.setCurrentCity(city);
-    return truck;
   }
 
-  public static DepotDto depotToDto(Depot depot) {
+  public DepotDto depotToDto(Depot depot) {
     DepotDto depotDto = map(depot, DepotDto.class);
     depotDto.setCityUbigeo(depot.getCity().getUbigeo());
     return depotDto;
   }
 
-  public static Depot dtoToDepot(DepotDto source) {
+  public Depot dtoToDepot(DepotDto source) {
     Depot depot = map(source, Depot.class);
-    City city = cityService.findByUbigeo(source.getCityUbigeo());
+    City city = cityRepository.findByUbigeo(source.getCityUbigeo()).get(0);
     if (city == null) {
       throw new IllegalArgumentException("No se encontro la ciudad con ubigeo: " + source.getCityUbigeo());
     }
@@ -71,13 +86,13 @@ public class ObjectMapper {
     return depot;
   }
 
-  public static CityDto cityToDto(City source) {
+  public CityDto cityToDto(City source) {
     CityDto cityDto = map(source, CityDto.class);
     cityDto.setRegion(source.getRegion().name());
     return cityDto;
   }
 
-  public static City dtoToCity(CityDto source) {
+  public City dtoToCity(CityDto source) {
     City city = map(source, City.class);
     city.setRegion(Region.valueOf(source.getRegion()));
     return city;

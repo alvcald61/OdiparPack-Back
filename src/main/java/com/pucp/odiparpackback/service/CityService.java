@@ -5,7 +5,8 @@ import com.pucp.odiparpackback.exceptions.GenericCustomException;
 import com.pucp.odiparpackback.model.City;
 import com.pucp.odiparpackback.repository.CityRepository;
 import com.pucp.odiparpackback.utils.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -14,18 +15,24 @@ import java.util.List;
 @Service
 public class CityService {
 
-  @Autowired
-  private CityRepository cityRepository;
+  private static final Logger log = LogManager.getLogger(ObjectMapper.class);
+  private final CityRepository cityRepository;
 
+  private final ObjectMapper objectMapper;
+
+  public CityService(CityRepository cityRepository, ObjectMapper objectMapper) {
+    this.cityRepository = cityRepository;
+    this.objectMapper = objectMapper;
+  }
 
   public List<CityDto> findAll() {
     return cityRepository.findAll().stream()
-      .map(ObjectMapper::cityToDto)
+      .map(objectMapper::cityToDto)
       .collect(java.util.stream.Collectors.toList());
   }
 
   public City save(CityDto city) {
-    return cityRepository.save(ObjectMapper.dtoToCity(city));
+    return cityRepository.save(objectMapper.dtoToCity(city));
   }
 
   public City update(City city) {
@@ -49,11 +56,14 @@ public class CityService {
   }
 
   public City findByUbigeo(String ubigeo) {
-    return cityRepository.findByUbigeo(ubigeo);
+    System.out.println("ubigeo: " + ubigeo);
+    List<City> city = cityRepository.findByUbigeo(ubigeo);
+    System.out.println("city: " + city);
+    return city.get(0);
   }
 
   public CityDto findById(Long Id) {
-    return ObjectMapper.cityToDto(cityRepository.getById(Id));
+    return objectMapper.cityToDto(cityRepository.getById(Id));
   }
 
 }

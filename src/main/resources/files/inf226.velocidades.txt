@@ -1,4 +1,4 @@
-Costa - Costa = 70 Km/h
+Costa - Costa = 0 Km/h
 Costa - Sierra = 50 Km/h
 Costa - Selva = 60 Km/h
 Sierra - Sierra = 60 Km/h

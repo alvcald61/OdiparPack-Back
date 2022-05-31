@@ -15,14 +15,17 @@ public class TruckService {
 
   private final TruckRepository truckRepository;
 
-  public TruckService(TruckRepository truckRepository) {
+  private final ObjectMapper objectMapper;
+
+  public TruckService(TruckRepository truckRepository, ObjectMapper objectMappexr) {
     this.truckRepository = truckRepository;
+    this.objectMapper = objectMappexr;
   }
 
 
   public List<TruckDto> findAll() {
     try {
-      return truckRepository.findByAvailableTrue().stream().map(ObjectMapper::truckToDto).collect(Collectors.toList());
+      return truckRepository.findByAvailableTrue().stream().map(objectMapper::truckToDto).collect(Collectors.toList());
     } catch (Exception e) {
       throw new GenericCustomException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
@@ -30,6 +33,6 @@ public class TruckService {
 
 
   public TruckDto save(TruckDto truckDto) {
-    return ObjectMapper.truckToDto(truckRepository.save(ObjectMapper.dtoToTruck(truckDto)));
+    return objectMapper.truckToDto(truckRepository.save(objectMapper.dtoToTruck(truckDto)));
   }
 }

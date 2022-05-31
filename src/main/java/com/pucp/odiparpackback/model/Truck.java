@@ -21,7 +21,7 @@ public class Truck {
   private Long id;
 
   @OneToOne
-  @JoinColumn(name = "driver_id")
+  @JoinColumn(name = "driver_id", nullable = true)
   private Driver driver;
 
   @Column(name = "capacity", nullable = false)
@@ -31,6 +31,7 @@ public class Truck {
   private String plate;
 
   @OneToMany(mappedBy = "truck", orphanRemoval = true)
+  @Column(nullable = true)
   private Set<Breakdown> breakdowns = new LinkedHashSet<>();
 
   private Boolean available;

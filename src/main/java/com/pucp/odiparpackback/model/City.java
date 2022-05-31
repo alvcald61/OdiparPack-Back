@@ -42,4 +42,15 @@ public class City {
 
   @OneToMany(mappedBy = "fromCity", orphanRemoval = true)
   private Set<Route> fromRoutes = new LinkedHashSet<>();
+
+  @Override
+  public String toString() {
+    return "City{" +
+      "id=" + id +
+      ", name='" + name + '\'' +
+      ", longitude='" + longitude + '\'' +
+      ", latitude='" + latitude + '\'' +
+      ", ubigeo='" + ubigeo + '\'' +
+      '}';
+  }
 }

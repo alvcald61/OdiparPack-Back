@@ -19,8 +19,11 @@ public class CityController {
 
   private final CityService cityService;
 
-  public CityController(CityService cityService) {
+  private final ObjectMapper objectMapper;
+
+  public CityController(CityService cityService, ObjectMapper objectMapper) {
     this.cityService = cityService;
+    this.objectMapper = objectMapper;
   }
 
   @GetMapping
@@ -44,7 +47,7 @@ public class CityController {
   @PostMapping
   public ResponseEntity<ResponseJson<CityDto>> createCity(@RequestBody CityDto city) {
     try {
-      return ResponseEntity.ok(new ResponseJson<>(ObjectMapper.cityToDto(cityService.save(city))));
+      return ResponseEntity.ok(new ResponseJson<>(objectMapper.cityToDto(cityService.save(city))));
     } catch (GenericCustomException e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseJson<>(new ErrorJson(e.getMessage())));
     }
@@ -53,7 +56,7 @@ public class CityController {
   @PutMapping
   public ResponseEntity<ResponseJson<CityDto>> updateCity(@RequestBody City city) {
     try {
-      return ResponseEntity.ok(new ResponseJson<>(ObjectMapper.cityToDto(cityService.update(city))));
+      return ResponseEntity.ok(new ResponseJson<>(objectMapper.cityToDto(cityService.update(city))));
     } catch (GenericCustomException e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseJson<>(new ErrorJson(e.getMessage())));
     }
@@ -62,7 +65,7 @@ public class CityController {
   @DeleteMapping("/{id}")
   public ResponseEntity<ResponseJson<CityDto>> deleteCity(@PathVariable Long id) {
     try {
-      return ResponseEntity.ok(new ResponseJson<>(ObjectMapper.cityToDto(cityService.delete(id))));
+      return ResponseEntity.ok(new ResponseJson<>(objectMapper.cityToDto(cityService.delete(id))));
     } catch (GenericCustomException e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseJson<>(new ErrorJson(e.getMessage())));
     }
