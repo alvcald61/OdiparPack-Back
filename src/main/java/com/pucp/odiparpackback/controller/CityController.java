@@ -1,11 +1,11 @@
 package com.pucp.odiparpackback.controller;
 
-import com.pucp.odiparpackback.controller.json.ErrorJson;
-import com.pucp.odiparpackback.controller.json.ResponseJson;
-import com.pucp.odiparpackback.dto.CityDto;
+import com.pucp.odiparpackback.response.ErrorResponse;
+import com.pucp.odiparpackback.response.StandardResponse;
+import com.pucp.odiparpackback.request.CityRequest;
 import com.pucp.odiparpackback.exceptions.GenericCustomException;
 import com.pucp.odiparpackback.model.City;
-import com.pucp.odiparpackback.service.CityService;
+import com.pucp.odiparpackback.service.impl.CityService;
 import com.pucp.odiparpackback.utils.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,47 +27,47 @@ public class CityController {
   }
 
   @GetMapping
-  public ResponseEntity<ResponseJson<List<CityDto>>> getAllCities() {
+  public ResponseEntity<StandardResponse<List<CityRequest>>> getAllCities() {
     try {
-      return ResponseEntity.ok(new ResponseJson<>(cityService.findAll()));
+      return ResponseEntity.ok(new StandardResponse<>(cityService.findAll()));
     } catch (GenericCustomException e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseJson<>(new ErrorJson(e.getMessage())));
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new StandardResponse<>(new ErrorResponse(e.getMessage())));
     }
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<ResponseJson<CityDto>> getAllCities(@PathVariable Long id) {
+  public ResponseEntity<StandardResponse<CityRequest>> getAllCities(@PathVariable Long id) {
     try {
-      return ResponseEntity.ok(new ResponseJson<>(cityService.findById(id)));
+      return ResponseEntity.ok(new StandardResponse<>(cityService.findById(id)));
     } catch (GenericCustomException e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseJson<>(new ErrorJson(e.getMessage())));
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new StandardResponse<>(new ErrorResponse(e.getMessage())));
     }
   }
 
   @PostMapping
-  public ResponseEntity<ResponseJson<CityDto>> createCity(@RequestBody CityDto city) {
+  public ResponseEntity<StandardResponse<CityRequest>> createCity(@RequestBody CityRequest city) {
     try {
-      return ResponseEntity.ok(new ResponseJson<>(objectMapper.cityToDto(cityService.save(city))));
+      return ResponseEntity.ok(new StandardResponse<>(objectMapper.cityToDto(cityService.save(city))));
     } catch (GenericCustomException e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseJson<>(new ErrorJson(e.getMessage())));
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new StandardResponse<>(new ErrorResponse(e.getMessage())));
     }
   }
 
   @PutMapping
-  public ResponseEntity<ResponseJson<CityDto>> updateCity(@RequestBody City city) {
+  public ResponseEntity<StandardResponse<CityRequest>> updateCity(@RequestBody City city) {
     try {
-      return ResponseEntity.ok(new ResponseJson<>(objectMapper.cityToDto(cityService.update(city))));
+      return ResponseEntity.ok(new StandardResponse<>(objectMapper.cityToDto(cityService.update(city))));
     } catch (GenericCustomException e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseJson<>(new ErrorJson(e.getMessage())));
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new StandardResponse<>(new ErrorResponse(e.getMessage())));
     }
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<ResponseJson<CityDto>> deleteCity(@PathVariable Long id) {
+  public ResponseEntity<StandardResponse<CityRequest>> deleteCity(@PathVariable Long id) {
     try {
-      return ResponseEntity.ok(new ResponseJson<>(objectMapper.cityToDto(cityService.delete(id))));
+      return ResponseEntity.ok(new StandardResponse<>(objectMapper.cityToDto(cityService.delete(id))));
     } catch (GenericCustomException e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseJson<>(new ErrorJson(e.getMessage())));
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new StandardResponse<>(new ErrorResponse(e.getMessage())));
     }
   }
 }

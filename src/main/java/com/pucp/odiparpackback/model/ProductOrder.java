@@ -1,6 +1,6 @@
 package com.pucp.odiparpackback.model;
 
-import com.pucp.odiparpackback.enums.OrderState;
+import com.pucp.odiparpackback.utils.OrderState;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

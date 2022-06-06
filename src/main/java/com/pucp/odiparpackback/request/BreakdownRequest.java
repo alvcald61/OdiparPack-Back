@@ -1,6 +1,6 @@
-package com.pucp.odiparpackback.dto;
+package com.pucp.odiparpackback.request;
 
-import com.pucp.odiparpackback.enums.BreakdownType;
+import com.pucp.odiparpackback.utils.BreakdownType;
 import com.pucp.odiparpackback.model.Maintenance;
 import com.pucp.odiparpackback.model.Truck;
 import lombok.AllArgsConstructor;
@@ -16,7 +16,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Getter
 @Setter
-public class BreakdownDto {
+public class BreakdownRequest {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false)

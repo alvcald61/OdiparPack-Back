@@ -1,26 +1,26 @@
-package com.pucp.odiparpackback.controller.json;
+package com.pucp.odiparpackback.response;
 
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 
 @Data
-public class ResponseJson<T> {
-  private ErrorJson error;
+public class StandardResponse<T> {
+  private ErrorResponse error;
   private T data;
   private HttpStatus status;
 
-  public ResponseJson(ErrorJson error) {
+  public StandardResponse(ErrorResponse error) {
     this.error = error;
     this.data = null;
   }
 
-  public ResponseJson(ErrorJson error, HttpStatus status) {
+  public StandardResponse(ErrorResponse error, HttpStatus status) {
     this.error = error;
     this.data = null;
     this.status = status;
   }
 
-  public ResponseJson(T data) {
+  public StandardResponse(T data) {
     this.data = data;
     this.error = null;
     this.status = HttpStatus.OK;

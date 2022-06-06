@@ -1,13 +1,13 @@
-package com.pucp.odiparpackback.dto;
+package com.pucp.odiparpackback.request;
 
-import com.pucp.odiparpackback.enums.OrderState;
+import com.pucp.odiparpackback.utils.OrderState;
 import com.pucp.odiparpackback.utils.TimeUtil;
 import lombok.Getter;
 
 import java.util.Date;
 
 
-public class ProductOrderDto {
+public class ProductOrderRequest {
   
   @Getter
   private Long id;

@@ -1,11 +1,9 @@
-package com.pucp.odiparpackback.dto;
+package com.pucp.odiparpackback.request;
 
 import lombok.*;
 
-import javax.persistence.*;
-
 @Data
-public class PersonDto {
+public class PersonRequest {
   
   private Long id;
   

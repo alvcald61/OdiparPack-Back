@@ -1,6 +1,6 @@
-package com.pucp.odiparpackback.service;
+package com.pucp.odiparpackback.service.impl;
 
-import com.pucp.odiparpackback.dto.ProductOrderDto;
+import com.pucp.odiparpackback.request.ProductOrderRequest;
 import com.pucp.odiparpackback.exceptions.GenericCustomException;
 import com.pucp.odiparpackback.model.ProductOrder;
 import com.pucp.odiparpackback.repository.ProductOrderRepository;
@@ -25,15 +25,15 @@ public class ProductOrderService {
     this.objectMapper = objectMapper;
   }
 
-  public List<ProductOrderDto> findAll() {
+  public List<ProductOrderRequest> findAll() {
     return productOrderRepository.findAll().stream().map(objectMapper::productOrderToDto).collect(Collectors.toList());
   }
 
-  public ProductOrderDto save(ProductOrderDto productOrder) {
+  public ProductOrderRequest save(ProductOrderRequest productOrder) {
     return objectMapper.productOrderToDto(productOrderRepository.save(objectMapper.dtoToProductOrder(productOrder)));
   }
 
-  public ProductOrderDto update(ProductOrderDto productOrder) {
+  public ProductOrderRequest update(ProductOrderRequest productOrder) {
     if (productOrder.getId() == null) {
       throw new GenericCustomException(HttpStatus.BAD_REQUEST, "El id del pedido no puede ser nulo");
     }
@@ -53,7 +53,7 @@ public class ProductOrderService {
     return true;
   }
 
-  public ProductOrderDto findOne(Long id) {
+  public ProductOrderRequest findOne(Long id) {
     Optional<ProductOrder> order = productOrderRepository.findById(id);
     if (order.isEmpty()) {
       throw new GenericCustomException(HttpStatus.BAD_REQUEST, "El pedido con id " + id + " no existe");

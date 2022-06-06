@@ -1,6 +1,6 @@
 package com.pucp.odiparpackback.model;
 
-import com.pucp.odiparpackback.enums.BreakdownType;
+import com.pucp.odiparpackback.utils.BreakdownType;
 import lombok.*;
 
 import javax.persistence.*;

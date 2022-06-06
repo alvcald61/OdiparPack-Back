@@ -1,6 +1,6 @@
-package com.pucp.odiparpackback.service;
+package com.pucp.odiparpackback.service.impl;
 
-import com.pucp.odiparpackback.dto.CityDto;
+import com.pucp.odiparpackback.request.CityRequest;
 import com.pucp.odiparpackback.exceptions.GenericCustomException;
 import com.pucp.odiparpackback.model.City;
 import com.pucp.odiparpackback.repository.CityRepository;
@@ -25,13 +25,13 @@ public class CityService {
     this.objectMapper = objectMapper;
   }
 
-  public List<CityDto> findAll() {
+  public List<CityRequest> findAll() {
     return cityRepository.findAll().stream()
       .map(objectMapper::cityToDto)
       .collect(java.util.stream.Collectors.toList());
   }
 
-  public City save(CityDto city) {
+  public City save(CityRequest city) {
     return cityRepository.save(objectMapper.dtoToCity(city));
   }
 
@@ -62,7 +62,7 @@ public class CityService {
     return city.get(0);
   }
 
-  public CityDto findById(Long Id) {
+  public CityRequest findById(Long Id) {
     return objectMapper.cityToDto(cityRepository.getById(Id));
   }
 

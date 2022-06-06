@@ -1,11 +1,11 @@
-package com.pucp.odiparpackback.dto;
+package com.pucp.odiparpackback.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class RouteDto {
+public class RouteRequest {
 
   private Long id;
 

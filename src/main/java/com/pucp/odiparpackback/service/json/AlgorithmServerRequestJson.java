@@ -1,6 +1,6 @@
 package com.pucp.odiparpackback.service.json;
 
-import com.pucp.odiparpackback.dto.TruckDto;
+import com.pucp.odiparpackback.request.TruckRequest;
 import lombok.Data;
 
 import java.util.List;
@@ -8,5 +8,5 @@ import java.util.List;
 @Data
 public class AlgorithmServerRequestJson {
   private List<AlgorithmRequestJson> orderList;
-  private List<TruckDto> truckList;
+  private List<TruckRequest> truckList;
 }

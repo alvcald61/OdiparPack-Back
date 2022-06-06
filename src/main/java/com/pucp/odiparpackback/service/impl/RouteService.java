@@ -1,8 +1,9 @@
-package com.pucp.odiparpackback.service;
+package com.pucp.odiparpackback.service.impl;
 
 import com.pucp.odiparpackback.exceptions.GenericCustomException;
 import com.pucp.odiparpackback.model.Route;
 import com.pucp.odiparpackback.repository.RouteRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -11,11 +12,9 @@ import java.util.List;
 @Service
 public class RouteService {
   
-  private final RouteRepository routeRepository;
+  @Autowired
+  private RouteRepository routeRepository;
 
-  public RouteService(RouteRepository routeRepository) {
-    this.routeRepository = routeRepository;
-  }
   
   public List<Route> findAll() {
     return routeRepository.findAll();

@@ -1,10 +1,9 @@
 package com.pucp.odiparpackback.utils;
 
-import com.pucp.odiparpackback.dto.CityDto;
-import com.pucp.odiparpackback.dto.DepotDto;
-import com.pucp.odiparpackback.dto.ProductOrderDto;
-import com.pucp.odiparpackback.dto.TruckDto;
-import com.pucp.odiparpackback.enums.Region;
+import com.pucp.odiparpackback.request.CityRequest;
+import com.pucp.odiparpackback.request.DepotRequest;
+import com.pucp.odiparpackback.request.ProductOrderRequest;
+import com.pucp.odiparpackback.request.TruckRequest;
 import com.pucp.odiparpackback.model.City;
 import com.pucp.odiparpackback.model.Depot;
 import com.pucp.odiparpackback.model.ProductOrder;
@@ -30,15 +29,15 @@ public class ObjectMapper {
     return modelMapper.map(source, destinationClass);
   }
 
-  public ProductOrderDto productOrderToDto(ProductOrder source) {
-    ProductOrderDto productOrderDto = map(source, ProductOrderDto.class);
+  public ProductOrderRequest productOrderToDto(ProductOrder source) {
+    ProductOrderRequest productOrderDto = map(source, ProductOrderRequest.class);
     productOrderDto.setState(source.getState());
     productOrderDto.setMaxDeliveryDate(source.getMaxDeliveryDate());
     productOrderDto.setRegistryDate(source.getRegistryDate());
     return productOrderDto;
   }
 
-  public ProductOrder dtoToProductOrder(ProductOrderDto source) {
+  public ProductOrder dtoToProductOrder(ProductOrderRequest source) {
     ProductOrder productOrder = map(source, ProductOrder.class);
     productOrder.setState(source.getDeliveryState());
     productOrder.setMaxDeliveryDate(source.getMaxDeliveryDate());
@@ -46,14 +45,14 @@ public class ObjectMapper {
     return productOrder;
   }
 
-  public TruckDto truckToDto(Truck source) {
+  public TruckRequest truckToDto(Truck source) {
 
-    TruckDto truckDto = map(source, TruckDto.class);
+    TruckRequest truckDto = map(source, TruckRequest.class);
     truckDto.setUbigeo(source.getCurrentCity().getUbigeo());
     return truckDto;
   }
 
-  public Truck dtoToTruck(TruckDto source) {
+  public Truck dtoToTruck(TruckRequest source) {
     try {
       Truck truck = map(source, Truck.class);
       System.out.println(cityRepository);
@@ -70,13 +69,13 @@ public class ObjectMapper {
     }
   }
 
-  public DepotDto depotToDto(Depot depot) {
-    DepotDto depotDto = map(depot, DepotDto.class);
+  public DepotRequest depotToDto(Depot depot) {
+    DepotRequest depotDto = map(depot, DepotRequest.class);
     depotDto.setCityUbigeo(depot.getCity().getUbigeo());
     return depotDto;
   }
 
-  public Depot dtoToDepot(DepotDto source) {
+  public Depot dtoToDepot(DepotRequest source) {
     Depot depot = map(source, Depot.class);
     City city = cityRepository.findByUbigeo(source.getCityUbigeo()).get(0);
     if (city == null) {
@@ -86,13 +85,13 @@ public class ObjectMapper {
     return depot;
   }
 
-  public CityDto cityToDto(City source) {
-    CityDto cityDto = map(source, CityDto.class);
+  public CityRequest cityToDto(City source) {
+    CityRequest cityDto = map(source, CityRequest.class);
     cityDto.setRegion(source.getRegion().name());
     return cityDto;
   }
 
-  public City dtoToCity(CityDto source) {
+  public City dtoToCity(CityRequest source) {
     City city = map(source, City.class);
     city.setRegion(Region.valueOf(source.getRegion()));
     return city;

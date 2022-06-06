@@ -1,6 +1,6 @@
 package com.pucp.odiparpackback.model;
 
-import com.pucp.odiparpackback.enums.Region;
+import com.pucp.odiparpackback.utils.Region;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,10 +1,10 @@
 package com.pucp.odiparpackback.controller;
 
-import com.pucp.odiparpackback.controller.json.ErrorJson;
-import com.pucp.odiparpackback.controller.json.ResponseJson;
-import com.pucp.odiparpackback.dto.DepotDto;
+import com.pucp.odiparpackback.response.ErrorResponse;
+import com.pucp.odiparpackback.response.StandardResponse;
+import com.pucp.odiparpackback.request.DepotRequest;
 import com.pucp.odiparpackback.exceptions.GenericCustomException;
-import com.pucp.odiparpackback.service.DeportService;
+import com.pucp.odiparpackback.service.DepotService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,27 +20,27 @@ import java.util.List;
 public class DepotController {
 
   @Autowired
-  private DeportService deportService;
+  private DepotService depotService;
 
   @GetMapping
-  public ResponseEntity<ResponseJson<List<DepotDto>>> findAll() {
+  public ResponseEntity<StandardResponse<List<DepotRequest>>> findAll() {
     try {
-      List<DepotDto> list = deportService.findAll();
-      return ResponseEntity.ok(new ResponseJson<>(list));
+      List<DepotRequest> list = depotService.findAll();
+      return ResponseEntity.ok(new StandardResponse<>(list));
     } catch (GenericCustomException e) {
       e.printStackTrace();
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseJson<>(new ErrorJson(e.getMessage())));
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new StandardResponse<>(new ErrorResponse(e.getMessage())));
     }
   }
 
   @PostMapping
-  public ResponseEntity<ResponseJson<DepotDto>> save(DepotDto depotDto) {
+  public ResponseEntity<StandardResponse<DepotRequest>> save(DepotRequest depotDto) {
     try {
-      DepotDto depot = deportService.save(depotDto);
-      return ResponseEntity.ok(new ResponseJson<>(depot));
+      DepotRequest depot = depotService.save(depotDto);
+      return ResponseEntity.ok(new StandardResponse<>(depot));
     } catch (Exception e) {
       e.printStackTrace();
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseJson<>(new ErrorJson(e.getMessage())));
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new StandardResponse<>(new ErrorResponse(e.getMessage())));
     }
   }
 }

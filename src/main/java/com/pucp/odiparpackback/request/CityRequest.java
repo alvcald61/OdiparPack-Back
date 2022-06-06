@@ -1,10 +1,10 @@
-package com.pucp.odiparpackback.dto;
+package com.pucp.odiparpackback.request;
 
 import lombok.Data;
 
 
 @Data
-public class CityDto {
+public class CityRequest {
 
   private Long id;
 

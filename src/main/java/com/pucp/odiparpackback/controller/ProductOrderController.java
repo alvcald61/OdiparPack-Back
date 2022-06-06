@@ -1,8 +1,8 @@
 package com.pucp.odiparpackback.controller;
 
-import com.pucp.odiparpackback.dto.ProductOrderDto;
+import com.pucp.odiparpackback.request.ProductOrderRequest;
 import com.pucp.odiparpackback.exceptions.GenericCustomException;
-import com.pucp.odiparpackback.service.ProductOrderService;
+import com.pucp.odiparpackback.service.impl.ProductOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +34,7 @@ public class ProductOrderController {
 
   //post method for create a new productOrder
   @PostMapping
-  public ResponseEntity<?> createProductOrder(@RequestBody ProductOrderDto productOrder) {
+  public ResponseEntity<?> createProductOrder(@RequestBody ProductOrderRequest productOrder) {
     try {
       return ResponseEntity.ok(productOrderService.save(productOrder));
     } catch (GenericCustomException e) {
@@ -44,7 +44,7 @@ public class ProductOrderController {
 
   //update method for update a productOrder
   @PutMapping
-  public ResponseEntity<?> updateProductOrder(@RequestBody ProductOrderDto productOrder) {
+  public ResponseEntity<?> updateProductOrder(@RequestBody ProductOrderRequest productOrder) {
     try {
       return ResponseEntity.ok(productOrderService.update(productOrder));
     } catch (GenericCustomException e) {

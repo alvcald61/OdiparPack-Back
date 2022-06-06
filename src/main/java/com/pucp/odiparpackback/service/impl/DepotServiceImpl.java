@@ -1,37 +1,43 @@
-package com.pucp.odiparpackback.service;
+package com.pucp.odiparpackback.service.impl;
 
-import com.pucp.odiparpackback.dto.DepotDto;
+import com.pucp.odiparpackback.request.DepotRequest;
 import com.pucp.odiparpackback.repository.DepotRepository;
+import com.pucp.odiparpackback.service.DepotService;
 import com.pucp.odiparpackback.utils.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class DeportService {
+public class DepotServiceImpl implements DepotService {
 
-  private final DepotRepository depotRepository;
+  @Autowired
+  private DepotRepository depotRepository;
 
   private final ObjectMapper objectMapper;
 
-  public DeportService(DepotRepository depotRepository, ObjectMapper objectMapper) {
-    this.depotRepository = depotRepository;
+  public DepotServiceImpl(ObjectMapper objectMapper) {
     this.objectMapper = objectMapper;
   }
 
-  public List<DepotDto> findAll() {
+  @Override
+  public List<DepotRequest> findAll() {
     return depotRepository.findAll().stream().map(objectMapper::depotToDto).collect(Collectors.toList());
   }
 
-  public DepotDto findById(Long id) {
+  @Override
+  public DepotRequest findById(Long id) {
     return objectMapper.depotToDto(depotRepository.findById(id).orElse(null));
   }
 
-  public DepotDto save(DepotDto depotDto) {
+  @Override
+  public DepotRequest save(DepotRequest depotDto) {
     return objectMapper.depotToDto(depotRepository.save(objectMapper.dtoToDepot(depotDto)));
   }
 
+  @Override
   public void delete(Long id) {
     depotRepository.deleteById(id);
   }
