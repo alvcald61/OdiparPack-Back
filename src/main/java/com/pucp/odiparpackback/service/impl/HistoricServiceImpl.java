@@ -57,7 +57,7 @@ public class HistoricServiceImpl implements HistoricService {
 
             generatedList = new ArrayList<>();
             for (Historic h : historicList) {
-                HistoricGeneratorResponse hgr = HistoricGeneratorResponse.builder().orderId(i++).clientId(h.getClientId())
+                HistoricGeneratorResponse hgr = HistoricGeneratorResponse.builder().orderId(h.getId()).clientId(h.getClientId())
                         .date(h.getOrderDate().toString()).startingNode(h.getStartingNode())
                         .destinationNode(h.getDestinationNode()).packages(h.getPackages()).build();
                 generatedList.add(hgr);
