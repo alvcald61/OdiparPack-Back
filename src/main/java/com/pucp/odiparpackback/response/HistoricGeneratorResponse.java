@@ -26,6 +26,9 @@ public class HistoricGeneratorResponse {
     @JsonProperty("destinationNode")
     private String destinationNode;
 
+    @JsonProperty("packages")
+    private Integer packages;
+
     @JsonProperty("clientId")
     private Integer clientId;
 }
