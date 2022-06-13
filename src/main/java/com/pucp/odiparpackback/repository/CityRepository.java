@@ -16,4 +16,6 @@ public interface CityRepository extends JpaRepository<City, Long> {
   @Query(value = "SELECT c FROM City c WHERE c.ubigeo= ?1")
   List<City> findByUbigeoCuston(String ubigeo);
 
+  @Query("SELECT c FROM City c WHERE c.ubigeo in ?1")
+  List<City> findAllByUbigeoList(List<String> ubigeoList);
 }

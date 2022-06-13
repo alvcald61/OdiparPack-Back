@@ -13,7 +13,9 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
 
+import com.pucp.odiparpackback.model.City;
 import com.pucp.odiparpackback.model.Historic;
+import com.pucp.odiparpackback.repository.CityRepository;
 import com.pucp.odiparpackback.repository.HistoricRepository;
 import com.pucp.odiparpackback.response.ErrorResponse;
 import com.pucp.odiparpackback.response.HistoricGeneratorResponse;
@@ -31,12 +33,13 @@ public class HistoricServiceImpl implements HistoricService {
     @Autowired
     HistoricRepository historicRepository;
 
+    @Autowired
+    CityRepository cityRepository;
 
     @Override
     public StandardResponse<List<Historic>> listAll() {
         List<Historic> historicList = historicRepository.findAll();
-        StandardResponse<List<Historic>> response = new StandardResponse<>(historicList);
-        return response;
+        return new StandardResponse<>(historicList);
     }
 
     @Override
@@ -50,16 +53,27 @@ public class HistoricServiceImpl implements HistoricService {
         }
 
         try {
-            int i = 1;
             Date start = stringToDatetime(startDate);
             Date end = stringToDatetime(endDate);
             List<Historic> historicList = historicRepository.findAllByOrderDateBetween(start, end);
+            List<String> ubigeoList = new ArrayList<>();
+            for (Historic h : historicList) {
+                ubigeoList.add(h.getDestinationNode());
+            }
+
+            List<City> cityList = cityRepository.findAllByUbigeoList(ubigeoList);
 
             generatedList = new ArrayList<>();
             for (Historic h : historicList) {
+                City city = cityList.stream().filter(c -> c.getUbigeo().equals(h.getDestinationNode())).findFirst().orElse(null);
+                if (Objects.isNull(city)) {
+                    errorResponse = new ErrorResponse("No se encontro ciudad con ese ubigeo");
+                    response = new StandardResponse<>(errorResponse, HttpStatus.BAD_REQUEST);
+                    return response;
+                }
                 HistoricGeneratorResponse hgr = HistoricGeneratorResponse.builder().orderId(h.getId()).clientId(h.getClientId())
-                        .date(h.getOrderDate().toString()).startingNode(h.getStartingNode())
-                        .destinationNode(h.getDestinationNode()).packages(h.getPackages()).build();
+                        .date(h.getOrderDate().toString()).startingNode(h.getStartingNode()).destinationNode(h.getDestinationNode())
+                        .remainingTime(city.getRegion().getMaxHours()).packages(h.getPackages()).build();
                 generatedList.add(hgr);
             }
             response = new StandardResponse<>(generatedList);

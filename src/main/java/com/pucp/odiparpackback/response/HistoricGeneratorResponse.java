@@ -31,4 +31,7 @@ public class HistoricGeneratorResponse {
 
     @JsonProperty("clientId")
     private Integer clientId;
+
+    @JsonProperty("remainingTime")
+    private Double remainingTime;
 }
