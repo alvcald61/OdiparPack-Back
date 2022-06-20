@@ -2,11 +2,9 @@ package com.pucp.odiparpackback.utils;
 
 import com.pucp.odiparpackback.request.CityRequest;
 import com.pucp.odiparpackback.request.DepotRequest;
-import com.pucp.odiparpackback.request.ProductOrderRequest;
 import com.pucp.odiparpackback.request.TruckRequest;
 import com.pucp.odiparpackback.model.City;
 import com.pucp.odiparpackback.model.Depot;
-import com.pucp.odiparpackback.model.ProductOrder;
 import com.pucp.odiparpackback.model.Truck;
 import com.pucp.odiparpackback.repository.CityRepository;
 import org.apache.logging.log4j.LogManager;
@@ -62,7 +60,7 @@ public class ObjectMapper {
 
   public Depot dtoToDepot(DepotRequest source) {
     Depot depot = map(source, Depot.class);
-    City city = cityRepository.findByUbigeo(source.getCityUbigeo()).get(0);
+    City city = cityRepository.findByUbigeo(source.getCityUbigeo());
     if (city == null) {
       throw new IllegalArgumentException("No se encontro la ciudad con ubigeo: " + source.getCityUbigeo());
     }

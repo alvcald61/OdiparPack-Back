@@ -2,11 +2,14 @@ package com.pucp.odiparpackback.service.impl;
 
 import com.pucp.odiparpackback.model.City;
 import com.pucp.odiparpackback.model.Client;
+import com.pucp.odiparpackback.repository.CityRepository;
+import com.pucp.odiparpackback.repository.ClientRepository;
 import com.pucp.odiparpackback.request.ClientResponse;
 import com.pucp.odiparpackback.request.ProductOrderRequest;
 import com.pucp.odiparpackback.exceptions.GenericCustomException;
 import com.pucp.odiparpackback.model.ProductOrder;
 import com.pucp.odiparpackback.repository.ProductOrderRepository;
+import com.pucp.odiparpackback.response.CityResponse;
 import com.pucp.odiparpackback.response.ErrorResponse;
 import com.pucp.odiparpackback.response.ProductOrderResponse;
 import com.pucp.odiparpackback.response.StandardResponse;
@@ -19,8 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -30,6 +34,12 @@ public class ProductOrderServiceImpl implements ProductOrderService {
 
   @Autowired
   private  ProductOrderRepository productOrderRepository;
+
+  @Autowired
+  private CityRepository cityRepository;
+
+  @Autowired
+  private ClientRepository clientRepository;
 
   final ObjectMapper objectMapper;
 
@@ -43,9 +53,32 @@ public class ProductOrderServiceImpl implements ProductOrderService {
     List<ProductOrder> productOrderList = productOrderRepository.findAll();
     List<ProductOrderResponse> productOrderResponseList = new ArrayList<>();
     for (ProductOrder po : productOrderList) {
-      productOrderResponseList.add(ProductOrderResponse.builder().id(po.getId()).amount(po.getAmount())
-              .maxDeliveryDate(po.getMaxDeliveryDate().toString()).registryDate(po.getRegistryDate().toString())
-              .state(po.getState().name()).build());
+      ClientResponse client = null;
+      if (Objects.nonNull(po.getClient())) {
+        client = ClientResponse.builder()
+                .id(po.getClient().getId())
+                .name(po.getClient().getName())
+                .ruc(po.getClient().getRuc())
+                .build();
+      }
+      City dest = po.getDestination();
+      CityResponse city = CityResponse.builder()
+              .id(dest.getId())
+              .name(dest.getName())
+              .ubigeo(dest.getUbigeo())
+              .latitude(dest.getLatitude())
+              .longitude(dest.getLongitude())
+              .region(dest.getRegion().name())
+              .build();
+      productOrderResponseList.add(ProductOrderResponse.builder()
+              .id(po.getId())
+              .amount(po.getAmount())
+              .maxDeliveryDate(TimeUtil.formatDate(po.getMaxDeliveryDate()))
+              .registryDate(TimeUtil.formatDate(po.getRegistryDate()))
+              .state(po.getState().name())
+              .destination(city)
+              .client(client)
+              .build());
     }
     return new StandardResponse<>(productOrderResponseList);
   }
@@ -53,31 +86,44 @@ public class ProductOrderServiceImpl implements ProductOrderService {
   @Override
   public StandardResponse<Long> save(ProductOrderRequest request) {
     StandardResponse<Long> response;
-    if (Objects.isNull(request.getDestinationId())) {
+    if (Objects.isNull(request.getDestinationUbigeo())) {
       ErrorResponse error = new ErrorResponse(String.format(Message.REQUIRED_FIELD, "destinationId"));
       response = new StandardResponse<>(error,HttpStatus.BAD_REQUEST);
       return response;
     }
 
     try {
-      City city = City.builder().id(request.getDestinationId()).build();
+      City city = cityRepository.findByUbigeo(request.getDestinationUbigeo());
       Client client = null;
+      client = Client.builder().id(request.getClientId()).build();
       if (Objects.nonNull(request.getClientId())) {
-        client = Client.builder().id(request.getClientId()).build();
+        client = clientRepository.findById(request.getClientId()).orElse(null);
+        if (Objects.isNull(client)) {
+          ErrorResponse error = new ErrorResponse(String.format(Message.FIELD_NOT_FOUND, "cliente", request.getClientId()));
+          response = new StandardResponse<>(error,HttpStatus.BAD_REQUEST);
+          return response;
+        }
       }
 
+      if (Objects.isNull(city)) {
+        ErrorResponse error = new ErrorResponse(String.format(Message.FIELD_NOT_FOUND, "ciudad", request.getDestinationUbigeo()));
+        response = new StandardResponse<>(error,HttpStatus.BAD_REQUEST);
+        return response;
+      }
+      Date date = new Date();
+      Calendar c = Calendar.getInstance();
+      c.setTime(date);
+      c.add(Calendar.DAY_OF_MONTH, (int)(city.getRegion().getMaxHours())/24);
+
       ProductOrder po = ProductOrder.builder()
-              .registryDate(TimeUtil.parseDate(request.getRegistryDate()))
-              .maxDeliveryDate(TimeUtil.parseDate(request.getMaxDeliveryDate()))
+              .registryDate(date)
+              .maxDeliveryDate(c.getTime())
               .destination(city)
-              .state(OrderState.valueOf(request.getState()))
+              .state(OrderState.PROCESSING)
               .client(client)
               .amount(request.getAmount()).build();
       Long orderId = productOrderRepository.save(po).getId();
       response = new StandardResponse<>(orderId);
-    } catch (ParseException e) {
-      ErrorResponse errorResponse = new ErrorResponse("Error al procesar la fecha");
-      response = new StandardResponse<>(errorResponse, HttpStatus.BAD_REQUEST);
     } catch (Exception e) {
       ErrorResponse errorResponse = new ErrorResponse(Message.INSERT_ERROR);
       response = new StandardResponse<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -97,15 +143,8 @@ public class ProductOrderServiceImpl implements ProductOrderService {
       ErrorResponse errorResponse = new ErrorResponse("El pedido con id " + request.getOrderId() + " no existe");
       return new StandardResponse<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
-    try {
-      productOrder.setState(OrderState.valueOf(request.getState()));
-      productOrder.setRegistryDate(TimeUtil.parseDate(request.getRegistryDate()));
-      Long orderId = productOrderRepository.save(productOrder).getId();
-      response = new StandardResponse<>(orderId);
-    } catch (ParseException e) {
-      ErrorResponse errorResponse = new ErrorResponse("Error al procesar la fecha");
-      response = new StandardResponse<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
+    Long orderId = productOrderRepository.save(productOrder).getId();
+    response = new StandardResponse<>(orderId);
     return response;
   }
 

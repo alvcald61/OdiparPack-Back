@@ -55,13 +55,6 @@ public class CityService {
     return city;
   }
 
-  public City findByUbigeo(String ubigeo) {
-    System.out.println("ubigeo: " + ubigeo);
-    List<City> city = cityRepository.findByUbigeo(ubigeo);
-    System.out.println("city: " + city);
-    return city.get(0);
-  }
-
   public CityRequest findById(Long Id) {
     return objectMapper.cityToDto(cityRepository.getById(Id));
   }

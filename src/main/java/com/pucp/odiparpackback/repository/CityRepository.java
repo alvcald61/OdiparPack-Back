@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 public interface CityRepository extends JpaRepository<City, Long> {
-  List<City> findByUbigeo(String ubigeo);
+  City findByUbigeo(String ubigeo);
 
   List<City> findByName(String name);
 

@@ -32,4 +32,7 @@ public class ProductOrderResponse {
     @JsonProperty("client")
     private ClientResponse client;
 
+    @JsonProperty("destination")
+    private CityResponse destination;
+
 }

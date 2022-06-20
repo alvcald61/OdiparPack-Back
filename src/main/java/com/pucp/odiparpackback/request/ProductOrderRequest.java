@@ -23,20 +23,9 @@ public class ProductOrderRequest {
   @JsonProperty("amount")
   private Double amount;
 
-  @JsonProperty("state")
-  private String state;
-
   @NotNull
-  @JsonProperty("maxDeliveryDate")
-  private String maxDeliveryDate;
-
-  @NotNull
-  @JsonProperty("registryDate")
-  private String registryDate;
-
-  @NotNull
-  @JsonProperty("destinationId")
-  private Long destinationId;
+  @JsonProperty("destinationUbigeo")
+  private String destinationUbigeo;
 
   @JsonProperty("clientId")
   private Long clientId;
