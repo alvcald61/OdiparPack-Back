@@ -29,21 +29,6 @@ public class ObjectMapper {
     return modelMapper.map(source, destinationClass);
   }
 
-  public ProductOrderRequest productOrderToDto(ProductOrder source) {
-    ProductOrderRequest productOrderDto = map(source, ProductOrderRequest.class);
-    productOrderDto.setState(source.getState());
-    productOrderDto.setMaxDeliveryDate(source.getMaxDeliveryDate());
-    productOrderDto.setRegistryDate(source.getRegistryDate());
-    return productOrderDto;
-  }
-
-  public ProductOrder dtoToProductOrder(ProductOrderRequest source) {
-    ProductOrder productOrder = map(source, ProductOrder.class);
-    productOrder.setState(source.getDeliveryState());
-    productOrder.setMaxDeliveryDate(source.getMaxDeliveryDate());
-    productOrder.setRegistryDate(source.getRegistryDate());
-    return productOrder;
-  }
 
   public TruckRequest truckToDto(Truck source) {
 

@@ -1,47 +1,44 @@
 package com.pucp.odiparpackback.request;
 
-import com.pucp.odiparpackback.utils.OrderState;
-import com.pucp.odiparpackback.utils.TimeUtil;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.Date;
+import javax.validation.constraints.NotNull;
 
-
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProductOrderRequest {
-  
-  @Getter
-  private Long id;
-  
-  private String registryDate;
-  
+
+  @JsonProperty("orderId")
+  private Long orderId;
+
+  @NotNull
+  @JsonProperty("amount")
   private Double amount;
-  
+
+  @JsonProperty("state")
   private String state;
-  
+
+  @NotNull
+  @JsonProperty("maxDeliveryDate")
   private String maxDeliveryDate;
-  
-  
-  public OrderState getDeliveryState() {
-    return OrderState.valueOf(state);
-  }
 
-  public void setState(OrderState state) {
-    this.state = state.name();
-  }
+  @NotNull
+  @JsonProperty("registryDate")
+  private String registryDate;
 
-  public Date getRegistryDate()  {
-    return TimeUtil.parseDate(registryDate);
-  }
+  @NotNull
+  @JsonProperty("destinationId")
+  private Long destinationId;
 
-  public void setRegistryDate(Date registryDate) {
-    this.registryDate = TimeUtil.formatDate(registryDate);
-  }
+  @JsonProperty("clientId")
+  private Long clientId;
 
-  public Date getMaxDeliveryDate()  {
-    return TimeUtil.parseDate(maxDeliveryDate);
-  }
-
-  public void setMaxDeliveryDate(Date maxDeliveryDate) {
-    this.maxDeliveryDate = TimeUtil.formatDate(maxDeliveryDate);
-  }
 }

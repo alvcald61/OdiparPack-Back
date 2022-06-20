@@ -1,6 +1,7 @@
 package com.pucp.odiparpackback.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,17 +12,28 @@ import java.util.Set;
 
 
 @Entity
-@PrimaryKeyJoinColumn(name = "client_id")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class Client extends Person {
+@Builder
+public class Client {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id", nullable = false)
+  private Long id;
+
+  @Column(name = "name")
+  private String name;
+
+  @Column(name = "ruc")
+  private String ruc;
+
   @ManyToOne
   @JoinColumn(name = "city_id")
   private City city;
 
-  @OneToMany(mappedBy = "client", orphanRemoval = true)
+  @OneToMany(mappedBy = "client")
   private Set<ProductOrder> productOrders = new LinkedHashSet<>();
 
 }

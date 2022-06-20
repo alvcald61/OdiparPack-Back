@@ -2,6 +2,7 @@ package com.pucp.odiparpackback.model;
 
 import com.pucp.odiparpackback.utils.OrderState;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,8 +15,8 @@ import java.util.Date;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 public class ProductOrder {
-  //mandar
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false)
@@ -25,7 +26,6 @@ public class ProductOrder {
   @Column(name = "registry_date")
   private Date registryDate;
 
-  //mandar
   @Column(name = "amount", nullable = false)
   private Double amount;
 
@@ -41,7 +41,6 @@ public class ProductOrder {
   @JoinColumn(name = "client_id")
   private Client client;
 
-  //mandar
   @ManyToOne
   @JoinColumn(name = "destination_id")
   private City destination;

@@ -2,6 +2,7 @@ package com.pucp.odiparpackback.model;
 
 import com.pucp.odiparpackback.utils.Region;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,6 +17,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 public class City {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
