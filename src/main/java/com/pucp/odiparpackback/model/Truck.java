@@ -20,6 +20,8 @@ public class Truck {
   @Column(name = "id", nullable = false)
   private Long id;
 
+  private String code;
+
   @OneToOne
   @JoinColumn(name = "driver_id", nullable = true)
   private Driver driver;
@@ -40,4 +42,6 @@ public class Truck {
   @JoinColumn(name = "current_city_id")
   private City currentCity;
 
+  @OneToOne(mappedBy = "truck")
+  private Maintenance maintenance;
 }
