@@ -3,9 +3,9 @@ package com.pucp.odiparpackback.controller;
 import com.pucp.odiparpackback.response.ErrorResponse;
 import com.pucp.odiparpackback.response.StandardResponse;
 import com.pucp.odiparpackback.exceptions.GenericCustomException;
-import com.pucp.odiparpackback.service.AlgorithmService;
-import com.pucp.odiparpackback.service.json.AlgorithmServerRequestJson;
-import com.pucp.odiparpackback.service.json.AlgorithmServerResponseJson;
+import com.pucp.odiparpackback.algorithm.AlgorithmService;
+import com.pucp.odiparpackback.algorithm.request.AlgorithmRequest;
+import com.pucp.odiparpackback.algorithm.response.AlgorithmResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +22,9 @@ public class AlgorithmController {
   private AlgorithmService algorithmService;
 
   @PostMapping
-  public ResponseEntity<StandardResponse<AlgorithmServerResponseJson>> getPath(@RequestBody AlgorithmServerRequestJson algorithmServerRequestJson) {
+  public ResponseEntity<StandardResponse<AlgorithmResponse>> getPath(@RequestBody AlgorithmRequest algorithmServerRequestJson) {
     try {
-      AlgorithmServerResponseJson response = algorithmService.getPath(algorithmServerRequestJson);
+      AlgorithmResponse response = algorithmService.getPath(algorithmServerRequestJson);
       return ResponseEntity.ok(new StandardResponse<>(response));
     } catch (GenericCustomException e) {
       e.printStackTrace();

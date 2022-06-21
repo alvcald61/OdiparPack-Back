@@ -60,7 +60,7 @@
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-ui</artifactId>
-      <version>1.6.4</version>
+      <version>1.6.9</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -69,7 +69,7 @@
     <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-spatial</artifactId>
-      <version>8.2.0</version>
+      <version>8.4.1</version>
     </dependency>
     <dependency>
       <groupId>org.postgresql</groupId>
