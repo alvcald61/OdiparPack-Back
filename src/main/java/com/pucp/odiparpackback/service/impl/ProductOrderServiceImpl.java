@@ -33,7 +33,7 @@ import java.util.Optional;
 public class ProductOrderServiceImpl implements ProductOrderService {
 
   @Autowired
-  private  ProductOrderRepository productOrderRepository;
+  private ProductOrderRepository productOrderRepository;
 
   @Autowired
   private CityRepository cityRepository;
@@ -88,32 +88,28 @@ public class ProductOrderServiceImpl implements ProductOrderService {
     StandardResponse<Long> response;
     if (Objects.isNull(request.getDestinationUbigeo())) {
       ErrorResponse error = new ErrorResponse(String.format(Message.REQUIRED_FIELD, "destinationId"));
-      response = new StandardResponse<>(error,HttpStatus.BAD_REQUEST);
+      response = new StandardResponse<>(error, HttpStatus.BAD_REQUEST);
       return response;
     }
 
     try {
       City city = cityRepository.findByUbigeo(request.getDestinationUbigeo());
-      Client client = null;
-      client = Client.builder().id(request.getClientId()).build();
-      if (Objects.nonNull(request.getClientId())) {
-        client = clientRepository.findById(request.getClientId()).orElse(null);
-        if (Objects.isNull(client)) {
-          ErrorResponse error = new ErrorResponse(String.format(Message.FIELD_NOT_FOUND, "cliente", request.getClientId()));
-          response = new StandardResponse<>(error,HttpStatus.BAD_REQUEST);
-          return response;
-        }
+      Client client = clientRepository.findByRuc(request.getClientRuc()).orElse(null);
+      if (Objects.isNull(client)) {
+        ErrorResponse error = new ErrorResponse(String.format(Message.FIELD_NOT_FOUND, "cliente", request.getClientRuc()));
+        response = new StandardResponse<>(error, HttpStatus.BAD_REQUEST);
+        return response;
       }
 
       if (Objects.isNull(city)) {
         ErrorResponse error = new ErrorResponse(String.format(Message.FIELD_NOT_FOUND, "ciudad", request.getDestinationUbigeo()));
-        response = new StandardResponse<>(error,HttpStatus.BAD_REQUEST);
+        response = new StandardResponse<>(error, HttpStatus.BAD_REQUEST);
         return response;
       }
       Date date = new Date();
       Calendar c = Calendar.getInstance();
       c.setTime(date);
-      c.add(Calendar.DAY_OF_MONTH, (int)(city.getRegion().getMaxHours())/24);
+      c.add(Calendar.DAY_OF_MONTH, (int) (city.getRegion().getMaxHours()) / 24);
 
       ProductOrder po = ProductOrder.builder()
               .registryDate(date)

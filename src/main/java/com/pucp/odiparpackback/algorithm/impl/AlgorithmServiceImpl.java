@@ -24,11 +24,8 @@ public class AlgorithmServiceImpl implements AlgorithmService {
   }
 
   @Override
-  public AlgorithmResponse getPath(AlgorithmRequest algorithmServerRequestJson) {
+  public AlgorithmResponse getPath(AlgorithmRequest request) {
     try {
-      AlgorithmRequest request = new AlgorithmRequest();
-      request.setOrderList(algorithmServerRequestJson.getOrderList());
-      request.setTruckList(algorithmServerRequestJson.getTruckList());
       return restTemplate.postForObject(ALGORITHM_ROUTE_URL, request, AlgorithmResponse.class);
     } catch (Exception e) {
       throw new GenericCustomException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());

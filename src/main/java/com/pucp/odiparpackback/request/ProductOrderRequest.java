@@ -21,13 +21,13 @@ public class ProductOrderRequest {
 
   @NotNull
   @JsonProperty("amount")
-  private Double amount;
+  private Integer amount;
 
   @NotNull
   @JsonProperty("destinationUbigeo")
   private String destinationUbigeo;
 
-  @JsonProperty("clientId")
-  private Long clientId;
+  @JsonProperty("clientRuc")
+  private String clientRuc;
 
 }

@@ -1,6 +1,7 @@
 package com.pucp.odiparpackback.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 public class TransportationPlanLine {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

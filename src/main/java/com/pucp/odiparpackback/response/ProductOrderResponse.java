@@ -21,7 +21,7 @@ public class ProductOrderResponse {
     private String registryDate;
 
     @JsonProperty("amount")
-    private Double amount;
+    private Integer amount;
 
     @JsonProperty("state")
     private String state;

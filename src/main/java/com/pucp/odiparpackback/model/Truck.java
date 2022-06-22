@@ -1,5 +1,6 @@
 package com.pucp.odiparpackback.model;
 
+import com.pucp.odiparpackback.utils.TruckStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -21,23 +23,28 @@ public class Truck {
   private Long id;
 
   @OneToOne
-  @JoinColumn(name = "driver_id", nullable = true)
+  @JoinColumn(name = "driver_id")
   private Driver driver;
 
   @Column(name = "capacity", nullable = false)
-  private Double capacity;
+  private Integer capacity;
 
   @Column(name = "plate")
   private String plate;
 
-  @OneToMany(mappedBy = "truck", orphanRemoval = true)
-  @Column(nullable = true)
+  @OneToMany(mappedBy = "truck")
   private Set<Breakdown> breakdowns = new LinkedHashSet<>();
 
-  private Boolean available;
+  @Enumerated
+  @Column(name = "status")
+  private TruckStatus status;
 
   @ManyToOne
   @JoinColumn(name = "current_city_id")
   private City currentCity;
+
+  @OneToMany
+  @JoinColumn(name = "plan_id")
+  private List<TransportationPlan> transportationPlanList;
 
 }

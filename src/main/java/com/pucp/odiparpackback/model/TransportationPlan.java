@@ -1,11 +1,13 @@
 package com.pucp.odiparpackback.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -14,24 +16,20 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 public class TransportationPlan {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false)
   private Long id;
 
-  @OneToOne(mappedBy = "transportationPlan", orphanRemoval = true)
-  private ProductOrder productOrder;
+  @OneToOne
+  @JoinColumn(name = "order_id")
+  private ProductOrder order;
 
-  @OneToMany(mappedBy = "transportationPlan", orphanRemoval = true)
-  private Set<TransportationPlanLine> transportationPlanLines = new LinkedHashSet<>();
+  @Column(name = "routeStart")
+  private Date routeStart;
 
-  @ManyToOne
-  @JoinColumn(name = "depot_id")
-  private Depot depot;
-
-  @ManyToOne
-  @JoinColumn(name = "truck_id")
-  private Truck truck;
-
+  @Column(name = "routeFinish")
+  private Date routeFinish;
 }

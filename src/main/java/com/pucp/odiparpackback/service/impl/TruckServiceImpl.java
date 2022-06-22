@@ -5,6 +5,7 @@ import com.pucp.odiparpackback.exceptions.GenericCustomException;
 import com.pucp.odiparpackback.repository.TruckRepository;
 import com.pucp.odiparpackback.service.TruckService;
 import com.pucp.odiparpackback.utils.ObjectMapper;
+import com.pucp.odiparpackback.utils.TruckStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ public class TruckServiceImpl implements TruckService {
   @Override
   public List<TruckRequest> findAll() {
     try {
-      return truckRepository.findByAvailableTrue().stream().map(objectMapper::truckToDto).collect(Collectors.toList());
+      return truckRepository.findAllByStatusLessThanEqual(TruckStatus.ONROUTE).stream().map(objectMapper::truckToDto).collect(Collectors.toList());
     } catch (Exception e) {
       throw new GenericCustomException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }

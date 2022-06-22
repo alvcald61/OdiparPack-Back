@@ -27,7 +27,7 @@ public class ProductOrder {
   private Date registryDate;
 
   @Column(name = "amount", nullable = false)
-  private Double amount;
+  private Integer amount;
 
   @Enumerated
   @Column(name = "state")
@@ -44,9 +44,4 @@ public class ProductOrder {
   @ManyToOne
   @JoinColumn(name = "destination_id")
   private City destination;
-
-  @OneToOne(orphanRemoval = true)
-  @JoinColumn(name = "transportation_plan_id")
-  private TransportationPlan transportationPlan;
-
 }
