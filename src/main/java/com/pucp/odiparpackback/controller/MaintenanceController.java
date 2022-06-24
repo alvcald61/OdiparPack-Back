@@ -32,7 +32,7 @@ public class MaintenanceController {
     return ResponseEntity.status(response.getStatus()).body(response);
   }
 
-  @PostMapping("/getByDate")
+  @GetMapping("/getByDate")
   public ResponseEntity<StandardResponse<List<Long>>> listByDate(@RequestParam("startDate") String startDate) {
     StandardResponse<List<Long>> response = maintenanceService.listByDate(startDate);
     return ResponseEntity.status(response.getStatus()).body(response);
