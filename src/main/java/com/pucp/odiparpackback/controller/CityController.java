@@ -7,6 +7,7 @@ import com.pucp.odiparpackback.exceptions.GenericCustomException;
 import com.pucp.odiparpackback.model.City;
 import com.pucp.odiparpackback.service.impl.CityService;
 import com.pucp.odiparpackback.utils.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,16 +16,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/city")
+@RequiredArgsConstructor
 public class CityController {
 
   private final CityService cityService;
 
   private final ObjectMapper objectMapper;
 
-  public CityController(CityService cityService, ObjectMapper objectMapper) {
-    this.cityService = cityService;
-    this.objectMapper = objectMapper;
-  }
 
   @GetMapping
   public ResponseEntity<StandardResponse<List<CityRequest>>> getAllCities() {

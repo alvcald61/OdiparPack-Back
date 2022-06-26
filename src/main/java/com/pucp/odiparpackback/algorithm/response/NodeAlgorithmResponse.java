@@ -14,7 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class NodeAlgorithmResponse {
   @JsonProperty("idOrder")
-  private String idOrder;
+  private Long idOrder;
 
   @JsonProperty("ubigeo")
   private String ubigeo;

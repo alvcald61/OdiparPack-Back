@@ -1,16 +1,23 @@
 package com.pucp.odiparpackback.utils;
 
+import com.pucp.odiparpackback.model.Client;
+import com.pucp.odiparpackback.model.ProductOrder;
 import com.pucp.odiparpackback.request.CityRequest;
+import com.pucp.odiparpackback.request.ClientResponse;
 import com.pucp.odiparpackback.request.DepotRequest;
 import com.pucp.odiparpackback.request.TruckRequest;
 import com.pucp.odiparpackback.model.City;
 import com.pucp.odiparpackback.model.Depot;
 import com.pucp.odiparpackback.model.Truck;
 import com.pucp.odiparpackback.repository.CityRepository;
+import com.pucp.odiparpackback.response.CityResponse;
+import com.pucp.odiparpackback.response.ProductOrderResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 @Service
 public class ObjectMapper {
@@ -78,5 +85,28 @@ public class ObjectMapper {
     City city = map(source, City.class);
     city.setRegion(Region.valueOf(source.getRegion()));
     return city;
+  }
+
+  public CityResponse mapCity(City city) {
+    return CityResponse.builder()
+            .id(city.getId())
+            .name(city.getName())
+            .ubigeo(city.getUbigeo())
+            .longitude(city.getLongitude())
+            .latitude(city.getLatitude())
+            .region(city.getRegion().name())
+            .build();
+  }
+
+  public ClientResponse mapClient(Client client) {
+    if (Objects.nonNull(client)) {
+      return ClientResponse.builder()
+              .id(client.getId())
+              .name(client.getName())
+              .ruc(client.getRuc())
+              .build();
+    }
+
+    return null;
   }
 }
