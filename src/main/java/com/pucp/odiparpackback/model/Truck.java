@@ -22,6 +22,8 @@ public class Truck {
   @Column(name = "id", nullable = false)
   private Long id;
 
+  private String code;
+
   @OneToOne
   @JoinColumn(name = "driver_id")
   private Driver driver;
@@ -47,4 +49,6 @@ public class Truck {
   @JoinColumn(name = "plan_id")
   private List<TransportationPlan> transportationPlanList;
 
+  @OneToOne(mappedBy = "truck")
+  private Maintenance maintenance;
 }

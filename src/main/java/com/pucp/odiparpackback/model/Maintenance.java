@@ -10,6 +10,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 public class Maintenance {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,8 +21,8 @@ public class Maintenance {
   @Column(name = "initial_date", nullable = false)
   private Date initialDate;
 
-  @Temporal(TemporalType.DATE)
-  @Column(name = "final_date", nullable = false)
-  private Date finalDate;
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "truck_id")
+  private Truck truck;
 
 }
