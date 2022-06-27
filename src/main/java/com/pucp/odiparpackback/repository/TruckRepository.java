@@ -9,8 +9,6 @@ import java.util.List;
 
 @Repository
 public interface TruckRepository extends JpaRepository<Truck, Long> {
-  List<Truck> findByAvailableTrue();
-
   Truck findTruckByCode(String code);
 
   List<Truck> findAllByStatusLessThanEqual(TruckStatus status);
