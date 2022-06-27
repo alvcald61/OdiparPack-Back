@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Entity
 @AllArgsConstructor
@@ -34,10 +33,6 @@ public class Route {
   private Double speed;
 
   private boolean connected;
-
-  private Date initialBlockDate;
-
-  private Date finalBlockDate;
 
   public Route(City fromCity, City toCity, Double distance, Double speed) {
     this.fromCity = fromCity;
