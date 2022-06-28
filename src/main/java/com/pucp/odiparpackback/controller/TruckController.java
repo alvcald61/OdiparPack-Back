@@ -19,6 +19,11 @@ public class TruckController {
   @Autowired
   private TruckService truckService;
 
+  @GetMapping("/simulation")
+  public ResponseEntity<StandardResponse<List<TruckRequest>>> getAllTrucksSimulation() {
+    StandardResponse<List<TruckRequest>> response = truckService.findAllSimulation();
+    return ResponseEntity.status(response.getStatus()).body(response);
+  }
   @GetMapping
   public ResponseEntity<StandardResponse<List<TruckResponse>>> getAllTrucks() {
     StandardResponse<List<TruckResponse>> response = truckService.findAll();

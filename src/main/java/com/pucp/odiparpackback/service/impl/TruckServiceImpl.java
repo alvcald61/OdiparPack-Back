@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +32,17 @@ public class TruckServiceImpl implements TruckService {
   private final TruckRepository truckRepository;
 
   private final ObjectMapper objectMapper;
+
+  @Override
+  public StandardResponse<List<TruckRequest>> findAllSimulation() {
+    try {
+      List<TruckRequest> responseList = truckRepository.findAllByStatusLessThanEqual(TruckStatus.MAINTENANCE).stream().map(objectMapper::truckToDto).collect(Collectors.toList());
+      return new StandardResponse<>(responseList);
+    } catch (Exception e) {
+      ErrorResponse error = new ErrorResponse(e.getMessage());
+      return new StandardResponse<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 
   @Override
   public StandardResponse<List<TruckResponse>> findAll() {

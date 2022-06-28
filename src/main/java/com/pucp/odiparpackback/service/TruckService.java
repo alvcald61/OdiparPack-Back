@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface TruckService {
 
+    StandardResponse<List<TruckRequest>> findAllSimulation();
     StandardResponse<List<TruckResponse>> findAll();
     TruckRequest save(TruckRequest truckDto);
 }
