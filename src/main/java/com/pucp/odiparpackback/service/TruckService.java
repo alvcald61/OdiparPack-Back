@@ -11,4 +11,5 @@ public interface TruckService {
     StandardResponse<List<TruckRequest>> findAllSimulation();
     StandardResponse<List<TruckResponse>> findAll();
     TruckRequest save(TruckRequest truckDto);
+    StandardResponse<TruckResponse> findOne(Long truckId);
 }

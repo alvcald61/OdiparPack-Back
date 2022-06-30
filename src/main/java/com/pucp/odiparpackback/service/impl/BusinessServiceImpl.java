@@ -12,11 +12,14 @@ import com.pucp.odiparpackback.model.City;
 import com.pucp.odiparpackback.model.ProductOrder;
 import com.pucp.odiparpackback.model.TransportationPlan;
 import com.pucp.odiparpackback.model.Truck;
+import com.pucp.odiparpackback.repository.CityRepository;
 import com.pucp.odiparpackback.repository.ProductOrderRepository;
 import com.pucp.odiparpackback.repository.TransportationPlanRepository;
 import com.pucp.odiparpackback.repository.TruckRepository;
+import com.pucp.odiparpackback.response.CityResponse;
 import com.pucp.odiparpackback.service.BusinessService;
 import com.pucp.odiparpackback.utils.OrderState;
+import com.pucp.odiparpackback.utils.Speed;
 import com.pucp.odiparpackback.utils.TruckStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,34 +36,30 @@ public class BusinessServiceImpl implements BusinessService {
   private final ProductOrderRepository productOrderRepository;
   private final TransportationPlanRepository planRepository;
   private final TruckRepository truckRepository;
+  private final CityRepository cityRepository;
   private final AlgorithmService algorithmService;
 
   @Override
   public void run() {
-    while (true) {
-      System.out.println("Starting process");
-      List<ProductOrder> orderList = getProcessingOrders();
-      List<Truck> truckList = getAvailableTrucks();
+    System.out.println("Starting process");
+    List<ProductOrder> orderList = getProcessingOrders();
+    List<Truck> truckList = getAvailableTrucks();
 
-      updateStatus(orderList, truckList);
-      algorithmCall(orderList, truckList);
-      try {
-        System.out.println("Thread sleeps");
-        Thread.sleep(1000 * 60 * 5);
-      } catch (InterruptedException e) {
-        throw new RuntimeException(e);
-      }
-    }
+    updateStatus(orderList, truckList);
+    algorithmCall(orderList, truckList);
   }
 
   private void algorithmCall(List<ProductOrder> orderList, List<Truck> truckList) {
     AlgorithmRequest request = constructAlgorithmRequest(orderList, truckList);
     AlgorithmResponse response = algorithmService.getPath(request);
+
     Date currentDate = new Date();
     Calendar calendar = Calendar.getInstance();
     for (DepotAlgorithmResponse d : response.getDepotList()) {
       for (TruckAlgorithmResponse t : d.getTruckList()) {
         List<TransportationPlan> transportationPlanList = new ArrayList<>();
+
+        City previousCity = null;
         for (NodeAlgorithmResponse n : t.getNodeRoute()) {
           calendar.setTime(currentDate);
           //convert hour to ms
@@ -69,16 +68,26 @@ public class BusinessServiceImpl implements BusinessService {
           if (n.getIdOrder() > 0) {
             po = ProductOrder.builder().id(n.getIdOrder()).build();
           }
+
+          City city = cityRepository.findByUbigeo(n.getUbigeo());
+          Speed speed = null;
+          if (Objects.nonNull(previousCity)) {
+            speed = Speed.valueOf(city.getRegion().name() + previousCity.getRegion().name());
+          }
+
           TransportationPlan transportationPlan = TransportationPlan.builder()
                   .order(po)
+                  .city(city)
                   .routeStart(currentDate)
                   .routeFinish(calendar.getTime())
+                  .speed(speed)
                   .build();
           if (calendar.getTimeInMillis() != currentDate.getTime()) {
             calendar.add(Calendar.HOUR, 1);
           }
           currentDate = calendar.getTime();
           transportationPlanList.add(transportationPlan);
+          previousCity = city;
         }
 
         Truck truck = truckList.stream().filter(tObject -> tObject.getId().equals(t.getId())).findFirst().orElse(null);
@@ -172,6 +181,7 @@ public class BusinessServiceImpl implements BusinessService {
   private AlgorithmRequest constructAlgorithmRequest(List<ProductOrder> orderList, List<Truck> truckList) {
     List<OrderAlgorithmRequest> orderAlgorithmList = new ArrayList<>();
     for (ProductOrder po : orderList) {
+      //cambiar por fecha actual en vez de fecha de registro
       double remainingTime = (double) (po.getMaxDeliveryDate().getTime() - po.getRegistryDate().getTime());
       remainingTime /= (1000 * 3600);
       OrderAlgorithmRequest orderAlgorithmRequest = OrderAlgorithmRequest.builder()

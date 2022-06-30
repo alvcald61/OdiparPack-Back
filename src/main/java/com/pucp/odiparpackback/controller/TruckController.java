@@ -24,9 +24,15 @@ public class TruckController {
     StandardResponse<List<TruckRequest>> response = truckService.findAllSimulation();
     return ResponseEntity.status(response.getStatus()).body(response);
   }
-  @GetMapping
+  @GetMapping("/findAll")
   public ResponseEntity<StandardResponse<List<TruckResponse>>> getAllTrucks() {
     StandardResponse<List<TruckResponse>> response = truckService.findAll();
+    return ResponseEntity.status(response.getStatus()).body(response);
+  }
+
+  @GetMapping("/find/{id}")
+  public ResponseEntity<StandardResponse<TruckResponse>> findOne(@PathVariable Long id) {
+    StandardResponse<TruckResponse> response = truckService.findOne(id);
     return ResponseEntity.status(response.getStatus()).body(response);
   }
 

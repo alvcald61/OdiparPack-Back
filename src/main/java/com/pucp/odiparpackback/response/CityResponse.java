@@ -21,10 +21,10 @@ public class CityResponse {
   private String name;
 
   @JsonProperty("longitude")
-  private String longitude;
+  private Double longitude;
 
   @JsonProperty("latitude")
-  private String latitude;
+  private Double latitude;
 
   @JsonProperty("ubigeo")
   private String ubigeo;

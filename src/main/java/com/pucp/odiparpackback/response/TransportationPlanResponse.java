@@ -25,4 +25,9 @@ public class TransportationPlanResponse {
   @JsonProperty("routeFinish")
   private String routeFinish;
 
+  @JsonProperty("city")
+  private CityResponse city;
+
+  @JsonProperty("speed")
+  private Double speed;
 }
