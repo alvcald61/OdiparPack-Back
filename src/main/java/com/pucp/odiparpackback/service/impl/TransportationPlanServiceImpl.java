@@ -4,9 +4,14 @@ import com.pucp.odiparpackback.model.ProductOrder;
 import com.pucp.odiparpackback.model.TransportationPlan;
 import com.pucp.odiparpackback.repository.TransportationPlanRepository;
 import com.pucp.odiparpackback.request.ClientResponse;
-import com.pucp.odiparpackback.response.*;
+import com.pucp.odiparpackback.response.CityResponse;
+import com.pucp.odiparpackback.response.ErrorResponse;
+import com.pucp.odiparpackback.response.ProductOrderResponse;
+import com.pucp.odiparpackback.response.StandardResponse;
+import com.pucp.odiparpackback.response.TransportationPlanResponse;
 import com.pucp.odiparpackback.service.TransportationPlanService;
 import com.pucp.odiparpackback.utils.ObjectMapper;
+import com.pucp.odiparpackback.utils.Speed;
 import com.pucp.odiparpackback.utils.TimeUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,12 +35,19 @@ public class TransportationPlanServiceImpl implements TransportationPlanService 
       for (TransportationPlan t : transportationPlanList) {
         ProductOrder po = t.getOrder();
         ProductOrderResponse productOrderResponse = createOrderResponse(po);
+        CityResponse cityResponse = objectMapper.mapCity(t.getCity());
 
+        Double speed = null;
+        if (Objects.nonNull(t.getSpeed())) {
+          speed = t.getSpeed().getSpeed();
+        }
         TransportationPlanResponse transportationPlanResponse = TransportationPlanResponse.builder()
           .idTransportationPlan(t.getId())
           .order(productOrderResponse)
           .routeStart(TimeUtil.formatDate(t.getRouteStart()))
           .routeFinish(TimeUtil.formatDate(t.getRouteFinish()))
+          .city(cityResponse)
+          .speed(speed)
           .build();
         responseList.add(transportationPlanResponse);
       }
@@ -63,7 +75,13 @@ public class TransportationPlanServiceImpl implements TransportationPlanService 
 
   @Override
   public StandardResponse<String> deleteAll() {
-    return null;
+    try {
+      transportationPlanRepository.deleteAll();
+      return new StandardResponse<>("Exito");
+    } catch (Exception ex) {
+      ErrorResponse error = new ErrorResponse(ex.getMessage());
+      return new StandardResponse<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   private ProductOrderResponse createOrderResponse(ProductOrder order) {
@@ -71,14 +89,12 @@ public class TransportationPlanServiceImpl implements TransportationPlanService 
       return null;
     }
 
-    CityResponse cityResponse = objectMapper.mapCity(order.getDestination());
     ClientResponse clientResponse = objectMapper.mapClient(order.getClient());
     return ProductOrderResponse.builder()
       .id(order.getId())
       .maxDeliveryDate(TimeUtil.formatDate(order.getMaxDeliveryDate()))
       .registryDate(TimeUtil.formatDate(order.getRegistryDate()))
       .state(order.getState().name())
-      .destination(cityResponse)
       .client(clientResponse)
       .amount(order.getAmount())
       .build();

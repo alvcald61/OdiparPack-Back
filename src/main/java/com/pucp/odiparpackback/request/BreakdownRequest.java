@@ -1,5 +1,6 @@
 package com.pucp.odiparpackback.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.pucp.odiparpackback.utils.BreakdownType;
 import com.pucp.odiparpackback.model.Maintenance;
 import com.pucp.odiparpackback.model.Truck;
@@ -8,33 +9,29 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
-
-@Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 public class BreakdownRequest {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id", nullable = false)
+  @JsonProperty("id")
   private Long id;
 
-  @Enumerated
-  @Column(name = "breakdown_type")
+  @NotNull
+  @JsonProperty("breakdownType")
   private BreakdownType breakdownType;
 
-  @Column(name = "solution_action")
+  @NotNull
+  @JsonProperty("solutionAction")
   private String solutionAction;
 
-  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-  @JoinColumn(name = "maintenance_id")
+  @JsonProperty("maintenance")
   private Maintenance maintenance;
 
-  @ManyToOne
-  @JoinColumn(name = "truck_id")
+  @NotNull
+  @JsonProperty("truck")
   private Truck truck;
 
 }

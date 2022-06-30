@@ -28,10 +28,10 @@ public class City {
   private String name;
 
   @Column(name = "longitude", nullable = false)
-  private String longitude;
+  private Double longitude;
 
   @Column(name = "latitude", nullable = false)
-  private String latitude;
+  private Double latitude;
 
   private String ubigeo;
 

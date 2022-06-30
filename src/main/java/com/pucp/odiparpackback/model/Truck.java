@@ -46,7 +46,7 @@ public class Truck {
   private City currentCity;
 
   @OneToMany
-  @JoinColumn(name = "plan_id")
+  @JoinColumn(name = "truck_id")
   private List<TransportationPlan> transportationPlanList;
 
   @OneToOne(mappedBy = "truck")

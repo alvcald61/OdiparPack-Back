@@ -1,8 +1,20 @@
 package com.pucp.odiparpackback.model;
 
-import lombok.*;
+import com.pucp.odiparpackback.utils.Speed;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import java.util.Date;
 
 @Entity
@@ -26,11 +38,10 @@ public class TransportationPlan {
 
   @Column(name = "routeFinish")
   private Date routeFinish;
-
   @ManyToOne
-  @JoinColumn(name = "city_start_id")
-  private City cityFinish;
+  @JoinColumn(name = "city_id")
+  private City city;
 
   @Column(name = "speed")
-  private Double speed;
+  private Speed speed;
 }

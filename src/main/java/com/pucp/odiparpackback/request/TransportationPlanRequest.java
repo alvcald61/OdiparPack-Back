@@ -11,8 +11,6 @@ public class TransportationPlanRequest {
   private Long id;
   
   private ProductOrderRequest productOrder;
-  
-  private Set<TransportationPlanLineRequest> transportationPlanLines = new LinkedHashSet<>();
 
   private DepotRequest depot;
 
