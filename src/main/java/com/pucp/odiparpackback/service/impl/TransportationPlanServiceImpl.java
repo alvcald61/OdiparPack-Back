@@ -4,11 +4,7 @@ import com.pucp.odiparpackback.model.ProductOrder;
 import com.pucp.odiparpackback.model.TransportationPlan;
 import com.pucp.odiparpackback.repository.TransportationPlanRepository;
 import com.pucp.odiparpackback.request.ClientResponse;
-import com.pucp.odiparpackback.response.CityResponse;
-import com.pucp.odiparpackback.response.ErrorResponse;
-import com.pucp.odiparpackback.response.ProductOrderResponse;
-import com.pucp.odiparpackback.response.StandardResponse;
-import com.pucp.odiparpackback.response.TransportationPlanResponse;
+import com.pucp.odiparpackback.response.*;
 import com.pucp.odiparpackback.service.TransportationPlanService;
 import com.pucp.odiparpackback.utils.ObjectMapper;
 import com.pucp.odiparpackback.utils.TimeUtil;
@@ -36,11 +32,11 @@ public class TransportationPlanServiceImpl implements TransportationPlanService 
         ProductOrderResponse productOrderResponse = createOrderResponse(po);
 
         TransportationPlanResponse transportationPlanResponse = TransportationPlanResponse.builder()
-                .idTransportationPlan(t.getId())
-                .order(productOrderResponse)
-                .routeStart(TimeUtil.formatDate(t.getRouteStart()))
-                .routeFinish(TimeUtil.formatDate(t.getRouteFinish()))
-                .build();
+          .idTransportationPlan(t.getId())
+          .order(productOrderResponse)
+          .routeStart(TimeUtil.formatDate(t.getRouteStart()))
+          .routeFinish(TimeUtil.formatDate(t.getRouteFinish()))
+          .build();
         responseList.add(transportationPlanResponse);
       }
       return new StandardResponse<>(responseList);
@@ -78,13 +74,13 @@ public class TransportationPlanServiceImpl implements TransportationPlanService 
     CityResponse cityResponse = objectMapper.mapCity(order.getDestination());
     ClientResponse clientResponse = objectMapper.mapClient(order.getClient());
     return ProductOrderResponse.builder()
-            .id(order.getId())
-            .maxDeliveryDate(TimeUtil.formatDate(order.getMaxDeliveryDate()))
-            .registryDate(TimeUtil.formatDate(order.getRegistryDate()))
-            .state(order.getState().name())
-            .destination(cityResponse)
-            .client(clientResponse)
-            .amount(order.getAmount())
-            .build();
+      .id(order.getId())
+      .maxDeliveryDate(TimeUtil.formatDate(order.getMaxDeliveryDate()))
+      .registryDate(TimeUtil.formatDate(order.getRegistryDate()))
+      .state(order.getState().name())
+      .destination(cityResponse)
+      .client(clientResponse)
+      .amount(order.getAmount())
+      .build();
   }
 }

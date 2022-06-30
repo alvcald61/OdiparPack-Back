@@ -2,11 +2,7 @@ package com.pucp.odiparpackback.response;
 
 
 import com.pucp.odiparpackback.utils.TruckStatus;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -22,5 +18,4 @@ public class TruckResponse {
   private TruckStatus status;
   private CityResponse currentCity;
   private List<TransportationPlanResponse> transportationPlanList;
-
 }

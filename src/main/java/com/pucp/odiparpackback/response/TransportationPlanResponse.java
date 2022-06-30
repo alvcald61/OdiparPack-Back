@@ -1,11 +1,7 @@
 package com.pucp.odiparpackback.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Builder
 @Getter
@@ -21,8 +17,14 @@ public class TransportationPlanResponse {
 
   @JsonProperty("routeStart")
   private String routeStart;
-
+  //cityUnigeo
   @JsonProperty("routeFinish")
   private String routeFinish;
+
+  private CityResponse cityFinish;
+
+  private Double speed;
+  //cityUnigeo
+  //add velocity
 
 }

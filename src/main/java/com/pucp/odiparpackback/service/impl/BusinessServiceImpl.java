@@ -8,24 +8,15 @@ import com.pucp.odiparpackback.algorithm.response.AlgorithmResponse;
 import com.pucp.odiparpackback.algorithm.response.DepotAlgorithmResponse;
 import com.pucp.odiparpackback.algorithm.response.NodeAlgorithmResponse;
 import com.pucp.odiparpackback.algorithm.response.TruckAlgorithmResponse;
-import com.pucp.odiparpackback.model.City;
-import com.pucp.odiparpackback.model.ProductOrder;
-import com.pucp.odiparpackback.model.TransportationPlan;
-import com.pucp.odiparpackback.model.Truck;
-import com.pucp.odiparpackback.repository.ProductOrderRepository;
-import com.pucp.odiparpackback.repository.TransportationPlanRepository;
-import com.pucp.odiparpackback.repository.TruckRepository;
+import com.pucp.odiparpackback.model.*;
+import com.pucp.odiparpackback.repository.*;
 import com.pucp.odiparpackback.service.BusinessService;
 import com.pucp.odiparpackback.utils.OrderState;
 import com.pucp.odiparpackback.utils.TruckStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +25,8 @@ public class BusinessServiceImpl implements BusinessService {
   private final TransportationPlanRepository planRepository;
   private final TruckRepository truckRepository;
   private final AlgorithmService algorithmService;
+  private final RouteRepository routeRepository;
+  private final CityRepository cityRepository;
 
   @Override
   public void run() {
@@ -61,19 +54,30 @@ public class BusinessServiceImpl implements BusinessService {
     for (DepotAlgorithmResponse d : response.getDepotList()) {
       for (TruckAlgorithmResponse t : d.getTruckList()) {
         List<TransportationPlan> transportationPlanList = new ArrayList<>();
-        for (NodeAlgorithmResponse n : t.getNodeRoute()) {
+        List<NodeAlgorithmResponse> nodeList = t.getNodeRoute();
+//        NodeAlgorithmResponse n : t.getNodeRoute()
+        for (int i = 0 ; i < nodeList.size() ; i++) {
           calendar.setTime(currentDate);
           //convert hour to ms
-          calendar.add(Calendar.MILLISECOND, (int) (n.getTravelCost() * 60 * 60 * 1000));
+          calendar.add(Calendar.MILLISECOND, (int) (nodeList.get(i).getTravelCost() * 60 * 60 * 1000));
           ProductOrder po = null;
-          if (n.getIdOrder() > 0) {
-            po = ProductOrder.builder().id(n.getIdOrder()).build();
+          if (nodeList.get(i).getIdOrder() > 0) {
+            po = ProductOrder.builder().id(nodeList.get(i).getIdOrder()).build();
+          }
+
+          City city = cityRepository.findByUbigeo(nodeList.get(i).getUbigeo());
+          Double speed = null;
+          if (i < nodeList.size() - 1) {
+            Route route = routeRepository.findRouteByFromCity_UbigeoAndToCity_Ubigeo(nodeList.get(i).getUbigeo(), nodeList.get(i + 1).getUbigeo());
+            speed = route.getSpeed();
           }
           TransportationPlan transportationPlan = TransportationPlan.builder()
-                  .order(po)
-                  .routeStart(currentDate)
-                  .routeFinish(calendar.getTime())
-                  .build();
+            .order(po)
+            .routeStart(currentDate)
+            .routeFinish(calendar.getTime())
+            .cityFinish(city)
+            .speed(speed)
+            .build();
           if (calendar.getTimeInMillis() != currentDate.getTime()) {
             calendar.add(Calendar.HOUR, 1);
           }
@@ -175,27 +179,27 @@ public class BusinessServiceImpl implements BusinessService {
       double remainingTime = (double) (po.getMaxDeliveryDate().getTime() - po.getRegistryDate().getTime());
       remainingTime /= (1000 * 3600);
       OrderAlgorithmRequest orderAlgorithmRequest = OrderAlgorithmRequest.builder()
-              .id(po.getId())
-              .packages(po.getAmount())
-              .ubigeo(po.getDestination().getUbigeo())
-              .remainingTime(remainingTime)
-              .build();
+        .id(po.getId())
+        .packages(po.getAmount())
+        .ubigeo(po.getDestination().getUbigeo())
+        .remainingTime(remainingTime)
+        .build();
       orderAlgorithmList.add(orderAlgorithmRequest);
     }
 
     List<TruckAlgorithmRequest> truckAlgorithmList = new ArrayList<>();
     for (Truck t : truckList) {
       TruckAlgorithmRequest truckAlgorithmRequest = TruckAlgorithmRequest.builder()
-              .id(t.getId())
-              .ubigeo(t.getCurrentCity().getUbigeo())
-              .maxLoad(t.getCapacity())
-              .build();
+        .id(t.getId())
+        .ubigeo(t.getCurrentCity().getUbigeo())
+        .maxLoad(t.getCapacity())
+        .build();
       truckAlgorithmList.add(truckAlgorithmRequest);
     }
 
     return AlgorithmRequest.builder()
-            .orderList(orderAlgorithmList)
-            .truckList(truckAlgorithmList)
-            .build();
+      .orderList(orderAlgorithmList)
+      .truckList(truckAlgorithmList)
+      .build();
   }
 }

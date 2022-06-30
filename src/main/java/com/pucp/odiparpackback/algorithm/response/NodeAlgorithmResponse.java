@@ -1,11 +1,7 @@
 package com.pucp.odiparpackback.algorithm.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Builder
 @Getter
@@ -21,4 +17,7 @@ public class NodeAlgorithmResponse {
 
   @JsonProperty("travelCost")
   private Double travelCost;
+
+  @JsonProperty("speed")
+  private Double speed;
 }
