@@ -12,4 +12,9 @@ public interface TruckRepository extends JpaRepository<Truck, Long> {
   Truck findTruckByCode(String code);
 
   List<Truck> findAllByStatusLessThanEqual(TruckStatus status);
+
+  List<Truck> findAllByStatus(TruckStatus status);
+
+  List<Truck> findAllByStatus_StoppedAndStatus_Available();
+
 }

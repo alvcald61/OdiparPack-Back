@@ -5,5 +5,5 @@ public enum TruckStatus {
   ONROUTE,
   BROKEDOWN,
   MAINTENANCE,
-  ;
+  STOPPED
 }

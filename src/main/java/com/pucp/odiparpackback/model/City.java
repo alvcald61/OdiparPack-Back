@@ -1,14 +1,11 @@
 package com.pucp.odiparpackback.model;
 
 import com.pucp.odiparpackback.utils.Region;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -44,6 +41,19 @@ public class City {
 
   @OneToMany(mappedBy = "fromCity", orphanRemoval = true)
   private Set<Route> fromRoutes = new LinkedHashSet<>();
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    City city = (City) o;
+    return ubigeo.equals(city.ubigeo);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(ubigeo);
+  }
 
   @Override
   public String toString() {

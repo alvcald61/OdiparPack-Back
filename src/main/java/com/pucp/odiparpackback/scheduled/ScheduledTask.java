@@ -20,16 +20,13 @@ import com.pucp.odiparpackback.utils.OrderState;
 import com.pucp.odiparpackback.utils.Speed;
 import com.pucp.odiparpackback.utils.TruckStatus;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -126,7 +123,7 @@ public class ScheduledTask {
   private List<Truck> getAvailableTrucks() {
     List<Truck> truckList = new ArrayList<>();
     try {
-      truckList = truckRepository.findAllByStatusLessThanEqual(TruckStatus.AVAILABLE);
+      truckList = truckRepository.findAllByStatus_StoppedAndStatus_Available();
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }
@@ -210,5 +207,39 @@ public class ScheduledTask {
       .orderList(orderAlgorithmList)
       .truckList(truckAlgorithmList)
       .build();
+  }
+
+  public void updateCurrentCity(List<Truck> truckList) {
+    for (Truck truck : truckList) {
+      TransportationPlan plan = truck.getTransportationPlanList().stream()
+        .filter(t -> t.getRouteFinish().after(new Date()) && DateUtils.addHours(t.getRouteStart(), -1).before(new Date())).findFirst().orElse(null);
+      if (Objects.isNull(plan)) {
+        continue;
+      }
+      if (truck.getCurrentCity().getUbigeo().equals((plan.getCity().getUbigeo()))) {
+        continue;
+      }
+      truck.setCurrentCity(plan.getCity());
+    }
+  }
+
+
+  @Scheduled(cron = "0 10 * * * *")
+  public void updateTrucks() {
+    List<Truck> truckList = truckRepository.findAllByStatus(TruckStatus.ONROUTE);
+    updateCurrentCity(truckList);
+    for (Truck truck : truckList) {
+      City city = truck.getCurrentCity();
+      truck.getTransportationPlanList().stream().filter(plan -> plan.getCity().getUbigeo().equals(city.getUbigeo())).findFirst().ifPresent(plan -> {
+        if (plan.getRouteStart().after(new Date())) {
+          truck.setStatus(TruckStatus.STOPPED);
+        } else {
+          if (!truck.getStatus().equals(TruckStatus.ONROUTE)) {
+            truck.setStatus(TruckStatus.ONROUTE);
+          }
+        }
+      });
+    }
+    truckRepository.saveAll(truckList);
   }
 }
