@@ -3,6 +3,7 @@ package com.pucp.odiparpackback.repository;
 import com.pucp.odiparpackback.model.Truck;
 import com.pucp.odiparpackback.utils.TruckStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,6 +16,7 @@ public interface TruckRepository extends JpaRepository<Truck, Long> {
 
   List<Truck> findAllByStatus(TruckStatus status);
 
+  @Query(value = "SELECT * FROM truck WHERE status = 0 AND status = 4", nativeQuery = true)
   List<Truck> findAllByStatus_StoppedAndStatus_Available();
 
 }
