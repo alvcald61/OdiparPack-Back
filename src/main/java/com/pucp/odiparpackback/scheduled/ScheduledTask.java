@@ -30,8 +30,8 @@ import java.util.*;
 
 @Component
 @RequiredArgsConstructor
-public class FakeScheduledTask {
-  private static final Logger log = LogManager.getLogger(FakeScheduledTask.class);
+public class ScheduledTask {
+  private static final Logger log = LogManager.getLogger(ScheduledTask.class);
 
   private final ProductOrderRepository productOrderRepository;
   private final TransportationPlanRepository planRepository;
@@ -39,7 +39,7 @@ public class FakeScheduledTask {
   private final AlgorithmService algorithmService;
   private final CityRepository cityRepository;
 
-  @Scheduled(cron = "0 0 0 * * *")
+  @Scheduled(cron = "0 0 0/5 * * ?")
   public void replaning() {
     System.out.println("Starting process");
     List<ProductOrder> orderList = getProcessingOrders();
@@ -224,7 +224,7 @@ public class FakeScheduledTask {
   }
 
 
-  @Scheduled(cron = "0 10 * * * ?")
+  @Scheduled(cron = "0 0/10 * * * ?")
   public void updateTrucks() {
     log.trace("Scheduler");
     System.out.println("Scheduler del sout");

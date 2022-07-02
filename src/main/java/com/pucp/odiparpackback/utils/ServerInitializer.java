@@ -2,7 +2,6 @@ package com.pucp.odiparpackback.utils;
 
 import com.pucp.odiparpackback.algorithm.AlgorithmService;
 import com.pucp.odiparpackback.repository.*;
-import com.pucp.odiparpackback.scheduled.FakeScheduledTask;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.ApplicationArguments;
