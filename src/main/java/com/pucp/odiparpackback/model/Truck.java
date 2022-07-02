@@ -45,7 +45,7 @@ public class Truck {
   @JoinColumn(name = "current_city_id")
   private City currentCity;
 
-  @OneToMany
+  @OneToMany(fetch = FetchType.EAGER)
   @JoinColumn(name = "truck_id")
   private List<TransportationPlan> transportationPlanList;
 

@@ -122,7 +122,8 @@ public class TruckServiceImpl implements TruckService {
       for (TransportationPlan plan : tpList) {
         if (plan.getRouteStart().before(plan.getRouteFinish()) && plan.getRouteFinish().after(currentDate)
                 && previous.getRouteFinish().before(currentDate)) {
-          setTruckLocation(truckResponse, previous, plan, currentDate);
+          int indexFound = tpList.indexOf(plan);
+          setTruckLocation(truckResponse, plan, tpList.get(indexFound+1), currentDate);
         }
 
         ProductOrder po = plan.getOrder();
@@ -162,8 +163,8 @@ public class TruckServiceImpl implements TruckService {
   }
 
   private void setTruckLocation(TruckResponse truck, TransportationPlan previous, TransportationPlan plan, Date currentDate) {
-    double traveledFraction = (double) (currentDate.getTime() - plan.getRouteStart().getTime()) /
-            (double) (plan.getRouteFinish().getTime() - plan.getRouteStart().getTime());
+    double traveledFraction = (double) (currentDate.getTime() - previous.getRouteStart().getTime()) /
+            (double) (previous.getRouteFinish().getTime() - previous.getRouteStart().getTime());
     double longitude = previous.getCity().getLongitude();
     longitude += (plan.getCity().getLongitude() - longitude) * traveledFraction;
     double latitude = previous.getCity().getLatitude();

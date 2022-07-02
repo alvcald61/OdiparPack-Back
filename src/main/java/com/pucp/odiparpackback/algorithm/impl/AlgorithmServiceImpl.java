@@ -13,7 +13,7 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class AlgorithmServiceImpl implements AlgorithmService {
 
-  public static final String ALGORITHM_ROUTE_URL = "http://44.198.232.213:8080/algorithm/route";
+  public static final String ALGORITHM_ROUTE_URL = "http://inf226g5.inf.pucp.edu.pe:8080/algorithm/route";
 
   @Autowired
   private TruckRepository truckRepository;

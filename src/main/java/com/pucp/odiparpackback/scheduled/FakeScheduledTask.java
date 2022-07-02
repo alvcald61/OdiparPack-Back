@@ -30,8 +30,8 @@ import java.util.*;
 
 @Component
 @RequiredArgsConstructor
-public class ScheduledTask {
-  private static final Logger log = LogManager.getLogger(ScheduledTask.class);
+public class FakeScheduledTask {
+  private static final Logger log = LogManager.getLogger(FakeScheduledTask.class);
 
   private final ProductOrderRepository productOrderRepository;
   private final TransportationPlanRepository planRepository;
@@ -224,8 +224,10 @@ public class ScheduledTask {
   }
 
 
-  @Scheduled(cron = "0 10 * * * *")
+  @Scheduled(cron = "0 10 * * * ?")
   public void updateTrucks() {
+    log.trace("Scheduler");
+    System.out.println("Scheduler del sout");
     List<Truck> truckList = truckRepository.findAllByStatus(TruckStatus.ONROUTE);
     updateCurrentCity(truckList);
     for (Truck truck : truckList) {
@@ -237,6 +239,11 @@ public class ScheduledTask {
           if (!truck.getStatus().equals(TruckStatus.ONROUTE)) {
             truck.setStatus(TruckStatus.ONROUTE);
           }
+        }
+        truck.getTransportationPlanList().sort(Comparator.comparing(TransportationPlan::getRouteFinish, Comparator.reverseOrder()));
+        TransportationPlan lastPlan = truck.getTransportationPlanList().get(0);
+        if(lastPlan.getRouteFinish().before(new Date())) {
+          truck.setStatus(TruckStatus.AVAILABLE);
         }
       });
     }
