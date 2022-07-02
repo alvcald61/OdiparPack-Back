@@ -120,9 +120,9 @@ public class TruckServiceImpl implements TruckService {
       TransportationPlan previous = tpList.get(0);
       tpList.sort(((t1, t2) -> (int) (t1.getId() - t2.getId())));
       for (TransportationPlan plan : tpList) {
+        int indexFound = tpList.indexOf(plan);
         if (plan.getRouteStart().before(plan.getRouteFinish()) && plan.getRouteFinish().after(currentDate)
-                && previous.getRouteFinish().before(currentDate)) {
-          int indexFound = tpList.indexOf(plan);
+                && previous.getRouteFinish().before(currentDate) && indexFound!=tpList.size()-1 ) {
           setTruckLocation(truckResponse, plan, tpList.get(indexFound+1), currentDate);
         }
 

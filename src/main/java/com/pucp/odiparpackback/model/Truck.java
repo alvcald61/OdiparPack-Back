@@ -34,6 +34,9 @@ public class Truck {
   @Column(name = "plate")
   private String plate;
 
+  @Column(name = "depot_ubigeo")
+  private String depotUbigeo;
+
   @OneToMany(mappedBy = "truck")
   private Set<Breakdown> breakdowns = new LinkedHashSet<>();
 
@@ -51,4 +54,6 @@ public class Truck {
 
   @OneToOne(mappedBy = "truck")
   private Maintenance maintenance;
+
+
 }

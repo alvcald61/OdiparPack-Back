@@ -16,7 +16,7 @@ public interface TruckRepository extends JpaRepository<Truck, Long> {
 
   List<Truck> findAllByStatus(TruckStatus status);
 
-  @Query(value = "SELECT * FROM truck WHERE status = 0 AND status = 4", nativeQuery = true)
+  @Query(value = "SELECT * FROM truck WHERE status = 0 AND status = 2", nativeQuery = true)
   List<Truck> findAllByStatus_StoppedAndStatus_Available();
 
 }
