@@ -8,14 +8,8 @@ import com.pucp.odiparpackback.algorithm.response.AlgorithmResponse;
 import com.pucp.odiparpackback.algorithm.response.DepotAlgorithmResponse;
 import com.pucp.odiparpackback.algorithm.response.NodeAlgorithmResponse;
 import com.pucp.odiparpackback.algorithm.response.TruckAlgorithmResponse;
-import com.pucp.odiparpackback.model.City;
-import com.pucp.odiparpackback.model.ProductOrder;
-import com.pucp.odiparpackback.model.TransportationPlan;
-import com.pucp.odiparpackback.model.Truck;
-import com.pucp.odiparpackback.repository.CityRepository;
-import com.pucp.odiparpackback.repository.ProductOrderRepository;
-import com.pucp.odiparpackback.repository.TransportationPlanRepository;
-import com.pucp.odiparpackback.repository.TruckRepository;
+import com.pucp.odiparpackback.model.*;
+import com.pucp.odiparpackback.repository.*;
 import com.pucp.odiparpackback.utils.OrderState;
 import com.pucp.odiparpackback.utils.Speed;
 import com.pucp.odiparpackback.utils.TruckStatus;
@@ -38,10 +32,12 @@ public class ScheduledTask {
   private final TruckRepository truckRepository;
   private final AlgorithmService algorithmService;
   private final CityRepository cityRepository;
+  private final DepotRepository depotRepository;
+
 
   @Scheduled(cron = "0 0 0/5 * * ?")
   public void replaning() {
-    System.out.println("Starting process");
+    System.out.println("Scheduler de replaning");
     List<ProductOrder> orderList = getProcessingOrders();
     List<Truck> truckList = getAvailableTrucks();
 
@@ -53,10 +49,11 @@ public class ScheduledTask {
     AlgorithmRequest request = constructAlgorithmRequest(orderList, truckList);
     AlgorithmResponse response = algorithmService.getPath(request);
 
-    Date currentDate = new Date();
+
     Calendar calendar = Calendar.getInstance();
     for (DepotAlgorithmResponse d : response.getDepotList()) {
       for (TruckAlgorithmResponse t : d.getTruckList()) {
+        Date currentDate = new Date();
         List<TransportationPlan> transportationPlanList = new ArrayList<>();
 
         City previousCity = null;
@@ -123,7 +120,7 @@ public class ScheduledTask {
   private List<Truck> getAvailableTrucks() {
     List<Truck> truckList = new ArrayList<>();
     try {
-      truckList = truckRepository.findAllByStatus_StoppedAndStatus_Available();
+      truckList = truckRepository.findAllByStatus(TruckStatus.AVAILABLE);
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }
@@ -212,7 +209,7 @@ public class ScheduledTask {
   public void updateCurrentCity(List<Truck> truckList) {
     for (Truck truck : truckList) {
       TransportationPlan plan = truck.getTransportationPlanList().stream()
-        .filter(t -> t.getRouteFinish().after(new Date()) && DateUtils.addHours(t.getRouteStart(), -1).before(new Date())).findFirst().orElse(null);
+        .filter(t -> DateUtils.addHours(t.getRouteFinish(),+1).after(new Date()) && DateUtils.addHours(t.getRouteStart(), 0).before(new Date())).findFirst().orElse(null);
       if (Objects.isNull(plan)) {
         continue;
       }
@@ -224,26 +221,26 @@ public class ScheduledTask {
   }
 
 
-  @Scheduled(cron = "0 0/10 * * * ?")
+  @Scheduled(cron = "0 0/5 * * * ?")
   public void updateTrucks() {
-    log.trace("Scheduler");
-    System.out.println("Scheduler del sout");
+    System.out.println("Scheduler de updateTrucks en ROUTE");
     List<Truck> truckList = truckRepository.findAllByStatus(TruckStatus.ONROUTE);
     updateCurrentCity(truckList);
     for (Truck truck : truckList) {
       City city = truck.getCurrentCity();
       truck.getTransportationPlanList().stream().filter(plan -> plan.getCity().getUbigeo().equals(city.getUbigeo())).findFirst().ifPresent(plan -> {
-        if (plan.getRouteStart().after(new Date())) {
-          truck.setStatus(TruckStatus.STOPPED);
-        } else {
-          if (!truck.getStatus().equals(TruckStatus.ONROUTE)) {
-            truck.setStatus(TruckStatus.ONROUTE);
-          }
-        }
         truck.getTransportationPlanList().sort(Comparator.comparing(TransportationPlan::getRouteFinish, Comparator.reverseOrder()));
         TransportationPlan lastPlan = truck.getTransportationPlanList().get(0);
         if(lastPlan.getRouteFinish().before(new Date())) {
           truck.setStatus(TruckStatus.AVAILABLE);
+        }
+        if (plan.getRouteFinish().before(new Date())) {
+          truck.setStatus(TruckStatus.STOPPED);
+          return;
+        }
+        if (!truck.getStatus().equals(TruckStatus.ONROUTE)) {
+          truck.setStatus(TruckStatus.ONROUTE);
+          return;
         }
       });
     }
