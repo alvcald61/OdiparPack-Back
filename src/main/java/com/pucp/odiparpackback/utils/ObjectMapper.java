@@ -38,7 +38,7 @@ public class ObjectMapper {
   public TruckRequest truckToDto(Truck source) {
 
     TruckRequest truckDto = map(source, TruckRequest.class);
-    truckDto.setUbigeo(source.getCurrentCity().getUbigeo());
+    truckDto.setUbigeo(source.getDepotUbigeo());
     return truckDto;
   }
 
