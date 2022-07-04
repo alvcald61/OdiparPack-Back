@@ -87,6 +87,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
             String day = splitLine[0].substring(6, 8);
             String code = splitLine[1];
             Truck truck = truckRepository.findTruckByCode(code);
+            if(truck==null)continue;
             Calendar initialDate = Calendar.getInstance();
             Calendar finalDate = initialDate;
             finalDate.add(Calendar.DATE, 1);

@@ -122,7 +122,7 @@ public class BusinessServiceImpl implements BusinessService {
   private List<Truck> getAvailableTrucks() {
     List<Truck> truckList = new ArrayList<>();
     try {
-      truckList = truckRepository.findAllByStatusLessThanEqual(TruckStatus.AVAILABLE);
+      truckList = truckRepository.findAllByStatus(TruckStatus.AVAILABLE);
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }

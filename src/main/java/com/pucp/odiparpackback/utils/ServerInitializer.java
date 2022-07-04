@@ -1,7 +1,7 @@
 package com.pucp.odiparpackback.utils;
 
-import com.pucp.odiparpackback.repository.CityRepository;
-import com.pucp.odiparpackback.repository.RouteRepository;
+import com.pucp.odiparpackback.algorithm.AlgorithmService;
+import com.pucp.odiparpackback.repository.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.ApplicationArguments;
@@ -12,11 +12,20 @@ import org.springframework.stereotype.Component;
 public class ServerInitializer implements ApplicationRunner {
 
   private static final Logger log = LogManager.getLogger(ServerInitializer.class);
+  private final ProductOrderRepository productOrderRepository;
+  private final TransportationPlanRepository planRepository;
+  private final TruckRepository truckRepository;
+  private final AlgorithmService algorithmService;
   private final CityRepository cityRepository;
 
   private final RouteRepository routeRepository;
 
-  public ServerInitializer(CityRepository cityRepository, RouteRepository routeRepository) {
+
+  public ServerInitializer(ProductOrderRepository productOrderRepository, TransportationPlanRepository planRepository, TruckRepository truckRepository, AlgorithmService algorithmService, CityRepository cityRepository, RouteRepository routeRepository) {
+    this.productOrderRepository = productOrderRepository;
+    this.planRepository = planRepository;
+    this.truckRepository = truckRepository;
+    this.algorithmService = algorithmService;
     this.cityRepository = cityRepository;
     this.routeRepository = routeRepository;
   }
@@ -108,6 +117,10 @@ public class ServerInitializer implements ApplicationRunner {
 //    } catch (Exception e) {
 //      log.error("Error reading tramos file", e);
 //    }
+//
+//    FakeScheduledTask scheduledTask = new FakeScheduledTask(productOrderRepository,planRepository,truckRepository,algorithmService,cityRepository);
+//    scheduledTask.updateTrucks();
+
   }
 }
 
