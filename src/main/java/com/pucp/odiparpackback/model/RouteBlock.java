@@ -18,12 +18,16 @@ public class RouteBlock {
   private Long id;
 
   @ManyToOne
-  @JoinColumn(name = "route_id")
-  private Route route;
+  @JoinColumn(name = "start_city_id")
+  private City startCity;
 
-  @Temporal(TemporalType.TIMESTAMP)
+  @ManyToOne
+  @JoinColumn(name = "end_city_id")
+  private City endCity;
+
+  @Column(name = "start_date")
   private Date startDate;
 
-  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "end_date")
   private Date endDate;
 }
