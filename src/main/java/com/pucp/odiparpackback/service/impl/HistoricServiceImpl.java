@@ -9,6 +9,7 @@ import com.pucp.odiparpackback.response.HistoricGeneratorResponse;
 import com.pucp.odiparpackback.response.StandardResponse;
 import com.pucp.odiparpackback.service.HistoricService;
 import com.pucp.odiparpackback.utils.Message;
+import com.pucp.odiparpackback.utils.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -50,8 +51,8 @@ public class HistoricServiceImpl implements HistoricService {
     }
 
     try {
-      Date start = stringToDatetime(startDate);
-      Date end = stringToDatetime(endDate);
+      Date start = TimeUtil.parseDate(startDate);
+      Date end = TimeUtil.parseDate(endDate);
       List<Historic> historicList = historicRepository.findAllByOrderDateBetween(start, end);
       List<String> ubigeoList = new ArrayList<>();
       for (Historic h : historicList) {
@@ -146,16 +147,7 @@ public class HistoricServiceImpl implements HistoricService {
   private Date stringToDatetime(String timeString, String fileName) throws ParseException {
     String dateString = fileName.substring(13, 17) + "-" + fileName.substring(17, 19) + "-";
     dateString += timeString + ":00";
-    Locale localePeru = new Locale("es", "pe");
-    TimeZone.setDefault(TimeZone.getTimeZone("America/Lima"));
-    SimpleDateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", localePeru);
-    return formatDate.parse(dateString);
+    return TimeUtil.parseDate(dateString);
   }
 
-  private Date stringToDatetime(String dateString) throws ParseException {
-    Locale localePeru = new Locale("es", "pe");
-    TimeZone.setDefault(TimeZone.getTimeZone("America/Lima"));
-    SimpleDateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", localePeru);
-    return formatDate.parse(dateString);
-  }
 }

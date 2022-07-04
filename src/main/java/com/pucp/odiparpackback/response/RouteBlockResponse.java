@@ -1,11 +1,10 @@
-package com.pucp.odiparpackback.request;
+package com.pucp.odiparpackback.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.Setter;
 
 @Builder
@@ -13,12 +12,16 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RouteBlockListRequest {
-  @NonNull
+public class RouteBlockResponse {
   @JsonProperty("startDate")
   private String startDate;
 
-  @NonNull
   @JsonProperty("endDate")
   private String endDate;
+
+  @JsonProperty("startCity")
+  private CityResponse startCity;
+
+  @JsonProperty("endCity")
+  private CityResponse endCity;
 }
