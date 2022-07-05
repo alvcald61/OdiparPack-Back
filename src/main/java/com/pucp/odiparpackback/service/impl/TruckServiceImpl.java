@@ -3,15 +3,10 @@ package com.pucp.odiparpackback.service.impl;
 import com.pucp.odiparpackback.model.ProductOrder;
 import com.pucp.odiparpackback.model.TransportationPlan;
 import com.pucp.odiparpackback.model.Truck;
+import com.pucp.odiparpackback.repository.TruckRepository;
 import com.pucp.odiparpackback.request.ClientResponse;
 import com.pucp.odiparpackback.request.TruckRequest;
-import com.pucp.odiparpackback.repository.TruckRepository;
-import com.pucp.odiparpackback.response.CityResponse;
-import com.pucp.odiparpackback.response.ErrorResponse;
-import com.pucp.odiparpackback.response.ProductOrderResponse;
-import com.pucp.odiparpackback.response.StandardResponse;
-import com.pucp.odiparpackback.response.TransportationPlanResponse;
-import com.pucp.odiparpackback.response.TruckResponse;
+import com.pucp.odiparpackback.response.*;
 import com.pucp.odiparpackback.service.TruckService;
 import com.pucp.odiparpackback.utils.Message;
 import com.pucp.odiparpackback.utils.ObjectMapper;
@@ -61,13 +56,13 @@ public class TruckServiceImpl implements TruckService {
         CityResponse currentCity = objectMapper.mapCity(truck.getCurrentCity());
 
         TruckResponse truckResponse = TruckResponse.builder()
-                .truckId(truck.getId())
-                .capacity(truck.getCapacity())
-                .currentCity(currentCity)
-                .plate(truck.getPlate())
-                .status(truck.getStatus())
-                .transportationPlanList(planList)
-                .build();
+          .truckId(truck.getId())
+          .capacity(truck.getCapacity())
+          .currentCity(currentCity)
+          .code(truck.getCode())
+          .status(truck.getStatus())
+          .transportationPlanList(planList)
+          .build();
 
         mapTruck(truckResponse, tpList, planList, currentDate);
 
@@ -102,13 +97,13 @@ public class TruckServiceImpl implements TruckService {
     CityResponse currentCity = objectMapper.mapCity(truck.getCurrentCity());
 
     TruckResponse truckResponse = TruckResponse.builder()
-            .truckId(truckId)
-            .plate(truck.getPlate())
-            .capacity(truck.getCapacity())
-            .currentCity(currentCity)
-            .transportationPlanList(planList)
-            .status(truck.getStatus())
-            .build();
+      .truckId(truckId)
+      .code(truck.getCode())
+      .capacity(truck.getCapacity())
+      .currentCity(currentCity)
+      .transportationPlanList(planList)
+      .status(truck.getStatus())
+      .build();
 
     mapTruck(truckResponse, tpList, planList, currentDate);
 
@@ -122,7 +117,7 @@ public class TruckServiceImpl implements TruckService {
       for (TransportationPlan plan : tpList) {
         int indexFound = tpList.indexOf(plan);
         if (plan.getRouteStart().before(plan.getRouteFinish()) && plan.getRouteFinish().after(currentDate)
-                && previous.getRouteFinish().before(currentDate)  ) {
+          && previous.getRouteFinish().before(currentDate)) {
           setTruckLocation(truckResponse, previous, plan, currentDate);
         }
 
@@ -134,13 +129,13 @@ public class TruckServiceImpl implements TruckService {
           speed = plan.getSpeed().getSpeed();
         }
         planList.add(TransportationPlanResponse.builder()
-                .idTransportationPlan(plan.getId())
-                .routeStart(TimeUtil.formatDate(plan.getRouteStart()))
-                .routeFinish(TimeUtil.formatDate(plan.getRouteFinish()))
-                .order(productOrderResponse)
-                .speed(speed)
-                .city(cityResponse)
-                .build());
+          .idTransportationPlan(plan.getId())
+          .routeStart(TimeUtil.formatDate(plan.getRouteStart()))
+          .routeFinish(TimeUtil.formatDate(plan.getRouteFinish()))
+          .order(productOrderResponse)
+          .speed(speed)
+          .city(cityResponse)
+          .build());
         previous = plan;
       }
     }
@@ -153,18 +148,18 @@ public class TruckServiceImpl implements TruckService {
 
     ClientResponse clientResponse = objectMapper.mapClient(order.getClient());
     return ProductOrderResponse.builder()
-            .id(order.getId())
-            .maxDeliveryDate(TimeUtil.formatDate(order.getMaxDeliveryDate()))
-            .registryDate(TimeUtil.formatDate(order.getRegistryDate()))
-            .state(order.getState().name())
-            .client(clientResponse)
-            .amount(order.getAmount())
-            .build();
+      .id(order.getId())
+      .maxDeliveryDate(TimeUtil.formatDate(order.getMaxDeliveryDate()))
+      .registryDate(TimeUtil.formatDate(order.getRegistryDate()))
+      .state(order.getState().name())
+      .client(clientResponse)
+      .amount(order.getAmount())
+      .build();
   }
 
   private void setTruckLocation(TruckResponse truck, TransportationPlan previous, TransportationPlan plan, Date currentDate) {
     double traveledFraction = (double) (currentDate.getTime() - plan.getRouteStart().getTime()) /
-            (double) (plan.getRouteFinish().getTime() - plan.getRouteStart().getTime());
+      (double) (plan.getRouteFinish().getTime() - plan.getRouteStart().getTime());
     double longitude = previous.getCity().getLongitude();
     longitude += (plan.getCity().getLongitude() - longitude) * traveledFraction;
     double latitude = previous.getCity().getLatitude();

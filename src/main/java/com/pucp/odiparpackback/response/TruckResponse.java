@@ -14,7 +14,7 @@ import java.util.List;
 public class TruckResponse {
   private Long truckId;
   private Integer capacity;
-  private String plate;
+  private String code;
   private TruckStatus status;
   private CityResponse currentCity;
   private Double longitude;

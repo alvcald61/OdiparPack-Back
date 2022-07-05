@@ -31,9 +31,6 @@ public class Truck {
   @Column(name = "capacity", nullable = false)
   private Integer capacity;
 
-  @Column(name = "plate")
-  private String plate;
-
   @Column(name = "depot_ubigeo")
   private String depotUbigeo;
 
@@ -54,6 +51,5 @@ public class Truck {
 
   @OneToOne(mappedBy = "truck")
   private Maintenance maintenance;
-
 
 }

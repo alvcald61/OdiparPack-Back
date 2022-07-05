@@ -13,7 +13,7 @@ public class TruckRequest {
 
   private Double capacity;
 
-  private String plate;
+  private String code;
 
   private Boolean available;
 
