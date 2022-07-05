@@ -24,10 +24,6 @@ public class Truck {
 
   private String code;
 
-  @OneToOne
-  @JoinColumn(name = "driver_id")
-  private Driver driver;
-
   @Column(name = "capacity", nullable = false)
   private Integer capacity;
 
