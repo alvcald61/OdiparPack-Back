@@ -132,7 +132,7 @@ public class RouteBlockServiceImpl implements RouteBlockService {
     try {
       Date start = TimeUtil.parseDate(startDate);
       Date end = TimeUtil.parseDate(endDate);
-      List<RouteBlock> blockList = routeBlockRepository.findAllByStartDateBetweenOrEndDateBetween(start, end, start, end);
+      List<RouteBlock> blockList = routeBlockRepository.findAllBetween(start, end);
       list = new ArrayList<>();
 
       for (RouteBlock r : blockList) {

@@ -2,6 +2,7 @@ package com.pucp.odiparpackback.service.impl;
 
 import com.pucp.odiparpackback.algorithm.AlgorithmService;
 import com.pucp.odiparpackback.algorithm.request.AlgorithmRequest;
+import com.pucp.odiparpackback.algorithm.request.BlockadeAlgorithmRequest;
 import com.pucp.odiparpackback.algorithm.request.OrderAlgorithmRequest;
 import com.pucp.odiparpackback.algorithm.request.TruckAlgorithmRequest;
 import com.pucp.odiparpackback.algorithm.response.AlgorithmResponse;
@@ -11,10 +12,12 @@ import com.pucp.odiparpackback.algorithm.response.SubOrderResponse;
 import com.pucp.odiparpackback.algorithm.response.TruckAlgorithmResponse;
 import com.pucp.odiparpackback.model.City;
 import com.pucp.odiparpackback.model.ProductOrder;
+import com.pucp.odiparpackback.model.RouteBlock;
 import com.pucp.odiparpackback.model.TransportationPlan;
 import com.pucp.odiparpackback.model.Truck;
 import com.pucp.odiparpackback.repository.CityRepository;
 import com.pucp.odiparpackback.repository.ProductOrderRepository;
+import com.pucp.odiparpackback.repository.RouteBlockRepository;
 import com.pucp.odiparpackback.repository.TransportationPlanRepository;
 import com.pucp.odiparpackback.repository.TruckRepository;
 import com.pucp.odiparpackback.service.BusinessService;
@@ -37,6 +40,7 @@ public class BusinessServiceImpl implements BusinessService {
   private final TransportationPlanRepository planRepository;
   private final TruckRepository truckRepository;
   private final CityRepository cityRepository;
+  private final RouteBlockRepository routeBlockRepository;
   private final AlgorithmService algorithmService;
 
   @Override
@@ -50,7 +54,8 @@ public class BusinessServiceImpl implements BusinessService {
   }
 
   private void algorithmCall(List<ProductOrder> orderList, List<Truck> truckList) {
-    AlgorithmRequest request = constructAlgorithmRequest(orderList, truckList);
+    List<RouteBlock> blockList = getCurrentBlockades();
+    AlgorithmRequest request = constructAlgorithmRequest(orderList, truckList, blockList);
     AlgorithmResponse response = algorithmService.getPath(request);
 
     Calendar calendar = Calendar.getInstance();
@@ -114,6 +119,21 @@ public class BusinessServiceImpl implements BusinessService {
     truckRepository.saveAll(truckList);
     orderList.forEach(productOrder -> productOrder.setState(OrderState.PENDING));
     productOrderRepository.saveAll(orderList);
+  }
+
+  private List<RouteBlock> getCurrentBlockades() {
+    List<RouteBlock> blockList = new ArrayList<>();
+    Date currentDate = new Date();
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(currentDate);
+    calendar.add(Calendar.HOUR, 72);
+    Date finalDate = calendar.getTime();
+    try {
+      blockList = routeBlockRepository.findAllBetween(currentDate, finalDate);
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+    return blockList;
   }
 
   private List<ProductOrder> getProcessingOrders() {
@@ -184,7 +204,7 @@ public class BusinessServiceImpl implements BusinessService {
     return name.equals("AREQUIPA") || name.equals("TRUJILLO") || name.equals("LIMA");
   }
 
-  private AlgorithmRequest constructAlgorithmRequest(List<ProductOrder> orderList, List<Truck> truckList) {
+  private AlgorithmRequest constructAlgorithmRequest(List<ProductOrder> orderList, List<Truck> truckList, List<RouteBlock> blockList) {
     List<OrderAlgorithmRequest> orderAlgorithmList = new ArrayList<>();
     for (ProductOrder po : orderList) {
       //cambiar por fecha actual en vez de fecha de registro
@@ -209,9 +229,25 @@ public class BusinessServiceImpl implements BusinessService {
       truckAlgorithmList.add(truckAlgorithmRequest);
     }
 
+    List<BlockadeAlgorithmRequest> blockadeAlgorithmList = new ArrayList<>();
+    Date currentDate = new Date();
+    for (RouteBlock r : blockList) {
+      double start = (r.getStartDate().getTime() - currentDate.getTime()) / 1000.0;
+      double end = (r.getEndDate().getTime() - currentDate.getTime()) / 1000.0;
+      BlockadeAlgorithmRequest blockade = BlockadeAlgorithmRequest.builder()
+              .firstNode(r.getStartCity().getUbigeo())
+              .secondNode(r.getEndCity().getUbigeo())
+              .start(start / 3600)
+              .end(end / 3600)
+              .build();
+
+      blockadeAlgorithmList.add(blockade);
+    }
+
     return AlgorithmRequest.builder()
       .orderList(orderAlgorithmList)
       .truckList(truckAlgorithmList)
+      .blockadeList(blockadeAlgorithmList)
       .build();
   }
 }
