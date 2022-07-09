@@ -1,5 +1,6 @@
 package com.pucp.odiparpackback.request;
 
+import com.pucp.odiparpackback.utils.TruckStatus;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -14,7 +15,7 @@ public class TruckRequest {
   private Double capacity;
 
   private String code;
-
-  private Boolean available;
+  //not in request, just taking advantage of what Alvaro did...
+  private TruckStatus status;
 
 }
