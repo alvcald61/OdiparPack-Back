@@ -221,7 +221,6 @@ public class ScheduledTask {
   }
 
 
-  @Scheduled(cron = "0 0/5 * * * ?")
   public void updateTrucks() {
     System.out.println("Scheduler de updateTrucks en ROUTE");
     List<Truck> truckList = truckRepository.findAllByStatus(TruckStatus.ONROUTE);
