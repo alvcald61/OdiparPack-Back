@@ -16,4 +16,5 @@ import java.util.List;
 public class AlgorithmRequest {
   private List<OrderAlgorithmRequest> orderList;
   private List<TruckAlgorithmRequest> truckList;
+  private List<BlockadeAlgorithmRequest> blockadeList;
 }

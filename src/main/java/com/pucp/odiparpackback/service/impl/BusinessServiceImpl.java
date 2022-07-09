@@ -7,6 +7,7 @@ import com.pucp.odiparpackback.algorithm.request.TruckAlgorithmRequest;
 import com.pucp.odiparpackback.algorithm.response.AlgorithmResponse;
 import com.pucp.odiparpackback.algorithm.response.DepotAlgorithmResponse;
 import com.pucp.odiparpackback.algorithm.response.NodeAlgorithmResponse;
+import com.pucp.odiparpackback.algorithm.response.SubOrderResponse;
 import com.pucp.odiparpackback.algorithm.response.TruckAlgorithmResponse;
 import com.pucp.odiparpackback.model.City;
 import com.pucp.odiparpackback.model.ProductOrder;
@@ -74,12 +75,18 @@ public class BusinessServiceImpl implements BusinessService {
             speed = Speed.valueOf(city.getRegion().name() + previousCity.getRegion().name());
           }
 
+          SubOrderResponse subOrder = null;
+          if (n.getIdOrder() > 0) {
+            subOrder = t.getOrderList().stream().filter(s -> s.getOrderId().equals(n.getIdOrder())).findFirst().orElse(null);
+            t.getOrderList().remove(subOrder);
+          }
           TransportationPlan transportationPlan = TransportationPlan.builder()
                   .order(po)
                   .city(city)
                   .routeStart(currentDate)
                   .routeFinish(calendar.getTime())
                   .speed(speed)
+                  .amount(Objects.isNull(subOrder) ? null : subOrder.getPackageAmount())
                   .build();
           if (calendar.getTimeInMillis() != currentDate.getTime()) {
             calendar.add(Calendar.HOUR, 1);

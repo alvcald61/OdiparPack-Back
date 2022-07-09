@@ -19,7 +19,7 @@ public class AlgorithmServiceImpl implements AlgorithmService {
 
   private static final Logger log = LogManager.getLogger(AlgorithmServiceImpl.class);
 
-  public static final String ALGORITHM_ROUTE_URL = "http://inf226g5.inf.pucp.edu.pe:8080/algorithm/route";
+  public static final String ALGORITHM_ROUTE_URL = "http://localhost:8080/algorithm/route";
 
   @Autowired
   private TruckRepository truckRepository;

@@ -34,4 +34,7 @@ public class TransportationPlan {
 
   @Column(name = "speed")
   private Speed speed;
+
+  @Column(name = "amount")
+  private Integer amount;
 }
