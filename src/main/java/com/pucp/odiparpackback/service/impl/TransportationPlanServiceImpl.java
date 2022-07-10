@@ -48,6 +48,7 @@ public class TransportationPlanServiceImpl implements TransportationPlanService 
           .routeFinish(TimeUtil.formatDate(t.getRouteFinish()))
           .city(cityResponse)
           .speed(speed)
+          .amount(t.getAmount())
           .build();
         responseList.add(transportationPlanResponse);
       }

@@ -135,6 +135,7 @@ public class TruckServiceImpl implements TruckService {
           .order(productOrderResponse)
           .speed(speed)
           .city(cityResponse)
+          .amount(plan.getAmount())
           .build());
         previous = plan;
       }

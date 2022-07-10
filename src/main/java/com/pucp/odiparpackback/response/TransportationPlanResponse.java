@@ -30,4 +30,7 @@ public class TransportationPlanResponse {
 
   @JsonProperty("speed")
   private Double speed;
+
+  @JsonProperty("amount")
+  private Integer amount;
 }
