@@ -1,5 +1,6 @@
 package com.pucp.odiparpackback.service.impl;
 
+import com.pucp.odiparpackback.model.City;
 import com.pucp.odiparpackback.model.ProductOrder;
 import com.pucp.odiparpackback.model.TransportationPlan;
 import com.pucp.odiparpackback.model.Truck;
@@ -115,10 +116,15 @@ public class TruckServiceImpl implements TruckService {
       TransportationPlan previous = tpList.get(0);
       tpList.sort(((t1, t2) -> (int) (t1.getId() - t2.getId())));
       for (TransportationPlan plan : tpList) {
-        int indexFound = tpList.indexOf(plan);
-        if (plan.getRouteStart().before(plan.getRouteFinish()) && plan.getRouteFinish().after(currentDate)
-          && previous.getRouteFinish().before(currentDate)) {
-          setTruckLocation(truckResponse, previous, plan, currentDate);
+        if (plan.getRouteFinish().after(currentDate) && previous.getRouteFinish().before(currentDate)) {
+          if (plan.getRouteStart().before(plan.getRouteFinish())) {
+            setTruckLocation(truckResponse, previous, plan, currentDate);
+          } else {
+            City city = previous.getCity();
+            truckResponse.setLatitude(city.getLatitude());
+            truckResponse.setLongitude(city.getLongitude());
+            truckResponse.setCurrentCity(objectMapper.mapCity(city));
+          }
         }
 
         ProductOrder po = plan.getOrder();
