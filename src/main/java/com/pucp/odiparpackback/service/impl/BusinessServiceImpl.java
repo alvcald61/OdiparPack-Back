@@ -204,7 +204,7 @@ public class BusinessServiceImpl implements BusinessService {
 
       City lastCity = t.getCurrentCity();
       for (TransportationPlan tPlan : t.getTransportationPlanList()) {
-        ProductOrder po = orderList.stream().filter(o -> tPlan.getOrder().equals(o)).findFirst().orElse(null);
+        ProductOrder po = orderList.stream().filter(o -> o.equals(tPlan.getOrder())).findFirst().orElse(null);
 
         if (tPlan.getRouteFinish().before(currentDate)) {
           if (Objects.nonNull(po)) {
@@ -215,7 +215,7 @@ public class BusinessServiceImpl implements BusinessService {
           updated = true;
           t.setCurrentCity(lastCity);
         }
-        lastCity = tPlan.getOrder().getDestination();
+        lastCity = tPlan.getCity();
       }
 
       if (isDepot(t.getCurrentCity().getName()) && t.getStatus().equals(TruckStatus.ONROUTE) && updated) {
