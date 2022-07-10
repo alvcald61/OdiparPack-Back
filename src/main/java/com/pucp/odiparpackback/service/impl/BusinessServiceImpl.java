@@ -20,11 +20,15 @@ import com.pucp.odiparpackback.repository.ProductOrderRepository;
 import com.pucp.odiparpackback.repository.RouteBlockRepository;
 import com.pucp.odiparpackback.repository.TransportationPlanRepository;
 import com.pucp.odiparpackback.repository.TruckRepository;
+import com.pucp.odiparpackback.response.StandardResponse;
 import com.pucp.odiparpackback.service.BusinessService;
+import com.pucp.odiparpackback.service.MaintenanceService;
 import com.pucp.odiparpackback.utils.OrderState;
 import com.pucp.odiparpackback.utils.Speed;
+import com.pucp.odiparpackback.utils.TimeUtil;
 import com.pucp.odiparpackback.utils.TruckStatus;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -42,20 +46,22 @@ public class BusinessServiceImpl implements BusinessService {
   private final CityRepository cityRepository;
   private final RouteBlockRepository routeBlockRepository;
   private final AlgorithmService algorithmService;
+  private final MaintenanceService maintenanceService;
 
   @Override
   public void run() {
     System.out.println("Starting process");
     List<ProductOrder> orderList = getProcessingOrders();
-    List<Truck> truckList = getAvailableTrucks();
+    List<Truck> truckList = getTrucks();
+    List<Long> maintenanceTrucks = getMaintenanceTrucks();
 
-    updateStatus(orderList, truckList);
-    algorithmCall(orderList, truckList);
+    updateStatus(orderList, truckList, maintenanceTrucks);
+    algorithmCall(orderList, truckList, maintenanceTrucks);
   }
 
-  private void algorithmCall(List<ProductOrder> orderList, List<Truck> truckList) {
+  private void algorithmCall(List<ProductOrder> orderList, List<Truck> truckList, List<Long> maintenanceTrucks) {
     List<RouteBlock> blockList = getCurrentBlockades();
-    AlgorithmRequest request = constructAlgorithmRequest(orderList, truckList, blockList);
+    AlgorithmRequest request = constructAlgorithmRequest(orderList, truckList, blockList, maintenanceTrucks);
     AlgorithmResponse response = algorithmService.getPath(request);
 
     Calendar calendar = Calendar.getInstance();
@@ -146,23 +152,56 @@ public class BusinessServiceImpl implements BusinessService {
     return orderList;
   }
 
-  private List<Truck> getAvailableTrucks() {
+  private List<Truck> getTrucks() {
     List<Truck> truckList = new ArrayList<>();
     try {
-      truckList = truckRepository.findAllByStatus(TruckStatus.AVAILABLE);
+      truckList = truckRepository.findAll();
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }
     return truckList;
   }
 
-  private void updateStatus(List<ProductOrder> orderList, List<Truck> truckList) {
+  private List<Long> getMaintenanceTrucks() {
+    Date currentDate = new Date();
+    StandardResponse<List<Long>> response = maintenanceService.listByDate(TimeUtil.formatDate(currentDate));
+    if (response.getStatus().equals(HttpStatus.OK)) {
+      return response.getData();
+    }
+    System.out.println("Error al obtener mantenimientos");
+    return new ArrayList<>();
+  }
+
+  private void updateStatus(List<ProductOrder> orderList, List<Truck> truckList, List<Long> maintenanceTrucks) {
     List<ProductOrder> deliveredOrderList = new ArrayList<>();
     List<Truck> updatedTruckList = new ArrayList<>();
 
     for (Truck t : truckList) {
       boolean updated = false;
       Date currentDate = new Date();
+      Calendar calendar = Calendar.getInstance();
+
+      if (Objects.nonNull(maintenanceTrucks.stream().filter(id -> t.getId().equals(id)).findFirst().orElse(null))) {
+        calendar.setTime(t.getMaintenance().getInitialDate());
+        calendar.add(Calendar.DAY_OF_WEEK, 1);
+        if (t.getMaintenance().getInitialDate().before(currentDate) && calendar.getTime().after(currentDate)) {
+          if (t.getTransportationPlanList().isEmpty()) {
+            System.out.println("Truck is carrying load, it should return to closest depot");
+          }
+          t.setStatus(TruckStatus.MAINTENANCE);
+          updated = true;
+        }
+      }
+
+      if (t.getStatus().equals(TruckStatus.MAINTENANCE)) {
+        calendar.setTime(t.getMaintenance().getInitialDate());
+        calendar.add(Calendar.DAY_OF_WEEK, 1);
+        if (calendar.getTime().before(currentDate)) {
+          t.setStatus(TruckStatus.AVAILABLE);
+          updated = true;
+        }
+      }
+
       City lastCity = t.getCurrentCity();
       for (TransportationPlan tPlan : t.getTransportationPlanList()) {
         ProductOrder po = orderList.stream().filter(o -> tPlan.getOrder().equals(o)).findFirst().orElse(null);
@@ -204,7 +243,7 @@ public class BusinessServiceImpl implements BusinessService {
     return name.equals("AREQUIPA") || name.equals("TRUJILLO") || name.equals("LIMA");
   }
 
-  private AlgorithmRequest constructAlgorithmRequest(List<ProductOrder> orderList, List<Truck> truckList, List<RouteBlock> blockList) {
+  private AlgorithmRequest constructAlgorithmRequest(List<ProductOrder> orderList, List<Truck> truckList, List<RouteBlock> blockList, List<Long> maintenanceTrucks) {
     List<OrderAlgorithmRequest> orderAlgorithmList = new ArrayList<>();
     for (ProductOrder po : orderList) {
       //cambiar por fecha actual en vez de fecha de registro
@@ -221,6 +260,10 @@ public class BusinessServiceImpl implements BusinessService {
 
     List<TruckAlgorithmRequest> truckAlgorithmList = new ArrayList<>();
     for (Truck t : truckList) {
+      if (Objects.nonNull(maintenanceTrucks.stream().filter(id -> t.getId().equals(id)).findFirst().orElse(null))) {
+        continue;
+      }
+
       TruckAlgorithmRequest truckAlgorithmRequest = TruckAlgorithmRequest.builder()
         .id(t.getId())
         .ubigeo(t.getCurrentCity().getUbigeo())
