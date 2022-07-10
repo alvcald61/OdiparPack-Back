@@ -185,7 +185,7 @@ public class BusinessServiceImpl implements BusinessService {
         calendar.setTime(t.getMaintenance().getInitialDate());
         calendar.add(Calendar.DAY_OF_WEEK, 1);
         if (t.getMaintenance().getInitialDate().before(currentDate) && calendar.getTime().after(currentDate)) {
-          if (t.getTransportationPlanList().isEmpty()) {
+          if (!t.getTransportationPlanList().isEmpty()) {
             System.out.println("Truck is carrying load, it should return to closest depot");
           }
           t.setStatus(TruckStatus.MAINTENANCE);
@@ -205,14 +205,12 @@ public class BusinessServiceImpl implements BusinessService {
       City lastCity = t.getCurrentCity();
       for (TransportationPlan tPlan : t.getTransportationPlanList()) {
         ProductOrder po = orderList.stream().filter(o -> tPlan.getOrder().equals(o)).findFirst().orElse(null);
-        if (Objects.isNull(po)) {
-          System.out.println("Order not found");
-          return;
-        }
 
         if (tPlan.getRouteFinish().before(currentDate)) {
-          po.setState(OrderState.DELIVERED);
-          deliveredOrderList.add(po);
+          if (Objects.nonNull(po)) {
+            po.setState(OrderState.DELIVERED);
+            deliveredOrderList.add(po);
+          }
         } else {
           updated = true;
           t.setCurrentCity(lastCity);
@@ -220,8 +218,7 @@ public class BusinessServiceImpl implements BusinessService {
         lastCity = tPlan.getOrder().getDestination();
       }
 
-      if (isDepot(t.getCurrentCity().getName()) && !t.getStatus().equals(TruckStatus.AVAILABLE)) {
-        updated = true;
+      if (isDepot(t.getCurrentCity().getName()) && t.getStatus().equals(TruckStatus.ONROUTE) && updated) {
         t.setStatus(TruckStatus.AVAILABLE);
       }
 
