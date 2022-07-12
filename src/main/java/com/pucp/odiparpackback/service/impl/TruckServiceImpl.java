@@ -112,39 +112,46 @@ public class TruckServiceImpl implements TruckService {
   }
 
   private void mapTruck(TruckResponse truckResponse, List<TransportationPlan> tpList, List<TransportationPlanResponse> planList, Date currentDate) {
-    if (!tpList.isEmpty()) {
-      TransportationPlan previous = tpList.get(0);
-      tpList.sort(((t1, t2) -> (int) (t1.getId() - t2.getId())));
-      for (TransportationPlan plan : tpList) {
-        if (plan.getRouteFinish().after(currentDate) && previous.getRouteFinish().before(currentDate)) {
-          if (plan.getRouteStart().before(plan.getRouteFinish())) {
-            setTruckLocation(truckResponse, previous, plan, currentDate);
-          } else {
-            City city = previous.getCity();
-            truckResponse.setLatitude(city.getLatitude());
-            truckResponse.setLongitude(city.getLongitude());
-            truckResponse.setCurrentCity(objectMapper.mapCity(city));
-          }
-        }
+    if (tpList.isEmpty()) {
+      return;
+    }
 
-        ProductOrder po = plan.getOrder();
-        ProductOrderResponse productOrderResponse = createOrderResponse(po);
-        CityResponse cityResponse = objectMapper.mapCity(plan.getCity());
-        Double speed = null;
-        if (Objects.nonNull(plan.getSpeed())) {
-          speed = plan.getSpeed().getSpeed();
+    TransportationPlan previous = tpList.get(0);
+    tpList.sort(((t1, t2) -> (int) (t1.getId() - t2.getId())));
+    for (TransportationPlan plan : tpList) {
+      if (plan.getRouteFinish().after(currentDate) && previous.getRouteFinish().before(currentDate)) {
+        if (plan.getRouteStart().before(plan.getRouteFinish())) {
+          setTruckLocation(truckResponse, previous, plan, currentDate);
+        } else {
+          City city = previous.getCity();
+          truckResponse.setLatitude(city.getLatitude());
+          truckResponse.setLongitude(city.getLongitude());
+          truckResponse.setCurrentCity(objectMapper.mapCity(city));
         }
-        planList.add(TransportationPlanResponse.builder()
-          .idTransportationPlan(plan.getId())
-          .routeStart(TimeUtil.formatDate(plan.getRouteStart()))
-          .routeFinish(TimeUtil.formatDate(plan.getRouteFinish()))
-          .order(productOrderResponse)
-          .speed(speed)
-          .city(cityResponse)
-          .amount(plan.getAmount())
-          .build());
-        previous = plan;
       }
+
+      ProductOrder po = plan.getOrder();
+      ProductOrderResponse productOrderResponse = createOrderResponse(po);
+      CityResponse cityResponse = objectMapper.mapCity(plan.getCity());
+      Double speed = null;
+      if (Objects.nonNull(plan.getSpeed())) {
+        speed = plan.getSpeed().getSpeed();
+      }
+      planList.add(TransportationPlanResponse.builder()
+        .idTransportationPlan(plan.getId())
+        .routeStart(TimeUtil.formatDate(plan.getRouteStart()))
+        .routeFinish(TimeUtil.formatDate(plan.getRouteFinish()))
+        .order(productOrderResponse)
+        .speed(speed)
+        .city(cityResponse)
+        .amount(plan.getAmount())
+        .build());
+      previous = plan;
+    }
+
+    if (previous.getRouteFinish().before(currentDate)) {
+      setTruckLocation(truckResponse, previous, previous, currentDate);
+      truckResponse.setStatus(TruckStatus.AVAILABLE);
     }
   }
 
