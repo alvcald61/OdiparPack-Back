@@ -36,6 +36,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -51,16 +52,19 @@ public class BusinessServiceImpl implements BusinessService {
   @Override
   public void run() {
     System.out.println("Starting process");
-    List<ProductOrder> orderList = getProcessingOrders();
+    List<ProductOrder> orderList = getOrders();
     List<Truck> truckList = getTrucks();
     List<Long> maintenanceTrucks = getMaintenanceTrucks();
 
     updateStatus(orderList, truckList, maintenanceTrucks);
-    algorithmCall(orderList, truckList, maintenanceTrucks);
+    //TODO: agregar condicion de replanificacion
+    if (orderList.stream().anyMatch(o -> o.getState().equals(OrderState.PROCESSING)))
+      algorithmCall(orderList, truckList, maintenanceTrucks);
   }
 
   private void algorithmCall(List<ProductOrder> orderList, List<Truck> truckList, List<Long> maintenanceTrucks) {
     List<RouteBlock> blockList = getCurrentBlockades();
+    List<City> cityList = getCityList();
     AlgorithmRequest request = constructAlgorithmRequest(orderList, truckList, blockList, maintenanceTrucks);
     AlgorithmResponse response = algorithmService.getPath(request);
 
@@ -80,7 +84,7 @@ public class BusinessServiceImpl implements BusinessService {
             po = ProductOrder.builder().id(n.getIdOrder()).build();
           }
 
-          City city = cityRepository.findByUbigeo(n.getUbigeo());
+          City city = cityList.stream().filter(c -> c.getUbigeo().equals(n.getUbigeo())).findFirst().orElse(null);
           Speed speed = null;
           if (Objects.nonNull(previousCity)) {
             speed = Speed.valueOf(city.getRegion().name() + previousCity.getRegion().name());
@@ -118,13 +122,17 @@ public class BusinessServiceImpl implements BusinessService {
           truck.setStatus(TruckStatus.ONROUTE);
         }
         truck.setTransportationPlanList(transportationPlanList);
-        System.out.println(truck);
       }
     }
 
     truckRepository.saveAll(truckList);
-    orderList.forEach(productOrder -> productOrder.setState(OrderState.PENDING));
-    productOrderRepository.saveAll(orderList);
+    List<ProductOrder> filteredList = orderList.stream().filter(p -> p.getState().equals(OrderState.PROCESSING)).collect(Collectors.toList());
+    filteredList.forEach(productOrder -> productOrder.setState(OrderState.PENDING));
+    productOrderRepository.saveAll(filteredList);
+  }
+
+  private List<City> getCityList() {
+    return cityRepository.findAll();
   }
 
   private List<RouteBlock> getCurrentBlockades() {
@@ -142,10 +150,10 @@ public class BusinessServiceImpl implements BusinessService {
     return blockList;
   }
 
-  private List<ProductOrder> getProcessingOrders() {
+  private List<ProductOrder> getOrders() {
     List<ProductOrder> orderList = new ArrayList<>();
     try {
-      orderList = productOrderRepository.findAllByState(OrderState.PROCESSING);
+      orderList = productOrderRepository.findAllByStateLessThanEqual(OrderState.PROCESSING);
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }
@@ -203,6 +211,8 @@ public class BusinessServiceImpl implements BusinessService {
       }
 
       City lastCity = t.getCurrentCity();
+      City updatedCity = null;
+      t.getTransportationPlanList().sort(((t1, t2) -> (int) (t1.getId() - t2.getId())));
       for (TransportationPlan tPlan : t.getTransportationPlanList()) {
         ProductOrder po = orderList.stream().filter(o -> o.equals(tPlan.getOrder())).findFirst().orElse(null);
 
@@ -212,13 +222,15 @@ public class BusinessServiceImpl implements BusinessService {
             deliveredOrderList.add(po);
           }
         } else {
-          updated = true;
-          t.setCurrentCity(lastCity);
+          updatedCity = lastCity;
         }
         lastCity = tPlan.getCity();
       }
-
-      if (isDepot(t.getCurrentCity().getName()) && t.getStatus().equals(TruckStatus.ONROUTE) && updated) {
+      if (Objects.nonNull(updatedCity)) {
+        updated = true;
+        t.setCurrentCity(updatedCity);
+      } else if (t.getStatus().equals(TruckStatus.ONROUTE)) {
+        updated = true;
         t.setStatus(TruckStatus.AVAILABLE);
       }
 
@@ -234,10 +246,6 @@ public class BusinessServiceImpl implements BusinessService {
     if (!updatedTruckList.isEmpty()) {
       truckRepository.saveAll(updatedTruckList);
     }
-  }
-
-  private boolean isDepot(String name) {
-    return name.equals("AREQUIPA") || name.equals("TRUJILLO") || name.equals("LIMA");
   }
 
   private AlgorithmRequest constructAlgorithmRequest(List<ProductOrder> orderList, List<Truck> truckList, List<RouteBlock> blockList, List<Long> maintenanceTrucks) {
@@ -257,7 +265,8 @@ public class BusinessServiceImpl implements BusinessService {
 
     List<TruckAlgorithmRequest> truckAlgorithmList = new ArrayList<>();
     for (Truck t : truckList) {
-      if (Objects.nonNull(maintenanceTrucks.stream().filter(id -> t.getId().equals(id)).findFirst().orElse(null))) {
+      if (Objects.nonNull(maintenanceTrucks.stream().filter(id -> t.getId().equals(id)).findFirst().orElse(null))
+              || t.getStatus().equals(TruckStatus.ONROUTE)) {
         continue;
       }
 
