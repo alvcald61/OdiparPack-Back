@@ -131,55 +131,6 @@ public class BusinessServiceImpl implements BusinessService {
     productOrderRepository.saveAll(filteredList);
   }
 
-  private List<City> getCityList() {
-    return cityRepository.findAll();
-  }
-
-  private List<RouteBlock> getCurrentBlockades() {
-    List<RouteBlock> blockList = new ArrayList<>();
-    Date currentDate = new Date();
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTime(currentDate);
-    calendar.add(Calendar.HOUR, 72);
-    Date finalDate = calendar.getTime();
-    try {
-      blockList = routeBlockRepository.findAllBetween(currentDate, finalDate);
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
-    }
-    return blockList;
-  }
-
-  private List<ProductOrder> getOrders() {
-    List<ProductOrder> orderList = new ArrayList<>();
-    try {
-      orderList = productOrderRepository.findAllByStateLessThanEqual(OrderState.PROCESSING);
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
-    }
-    return orderList;
-  }
-
-  private List<Truck> getTrucks() {
-    List<Truck> truckList = new ArrayList<>();
-    try {
-      truckList = truckRepository.findAll();
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
-    }
-    return truckList;
-  }
-
-  private List<Long> getMaintenanceTrucks() {
-    Date currentDate = new Date();
-    StandardResponse<List<Long>> response = maintenanceService.listByDate(TimeUtil.formatDate(currentDate));
-    if (response.getStatus().equals(HttpStatus.OK)) {
-      return response.getData();
-    }
-    System.out.println("Error al obtener mantenimientos");
-    return new ArrayList<>();
-  }
-
   private void updateStatus(List<ProductOrder> orderList, List<Truck> truckList, List<Long> maintenanceTrucks) {
     List<ProductOrder> deliveredOrderList = new ArrayList<>();
     List<Truck> updatedTruckList = new ArrayList<>();
@@ -255,11 +206,11 @@ public class BusinessServiceImpl implements BusinessService {
       double remainingTime = (double) (po.getMaxDeliveryDate().getTime() - po.getRegistryDate().getTime());
       remainingTime /= (1000 * 3600);
       OrderAlgorithmRequest orderAlgorithmRequest = OrderAlgorithmRequest.builder()
-        .id(po.getId())
-        .packages(po.getAmount())
-        .ubigeo(po.getDestination().getUbigeo())
-        .remainingTime(remainingTime)
-        .build();
+              .id(po.getId())
+              .packages(po.getAmount())
+              .ubigeo(po.getDestination().getUbigeo())
+              .remainingTime(remainingTime)
+              .build();
       orderAlgorithmList.add(orderAlgorithmRequest);
     }
 
@@ -271,10 +222,10 @@ public class BusinessServiceImpl implements BusinessService {
       }
 
       TruckAlgorithmRequest truckAlgorithmRequest = TruckAlgorithmRequest.builder()
-        .id(t.getId())
-        .ubigeo(t.getCurrentCity().getUbigeo())
-        .maxLoad(t.getCapacity())
-        .build();
+              .id(t.getId())
+              .ubigeo(t.getCurrentCity().getUbigeo())
+              .maxLoad(t.getCapacity())
+              .build();
       truckAlgorithmList.add(truckAlgorithmRequest);
     }
 
@@ -294,9 +245,58 @@ public class BusinessServiceImpl implements BusinessService {
     }
 
     return AlgorithmRequest.builder()
-      .orderList(orderAlgorithmList)
-      .truckList(truckAlgorithmList)
-      .blockadeList(blockadeAlgorithmList)
-      .build();
+            .orderList(orderAlgorithmList)
+            .truckList(truckAlgorithmList)
+            .blockadeList(blockadeAlgorithmList)
+            .build();
+  }
+
+  private List<City> getCityList() {
+    return cityRepository.findAll();
+  }
+
+  private List<RouteBlock> getCurrentBlockades() {
+    List<RouteBlock> blockList = new ArrayList<>();
+    Date currentDate = new Date();
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(currentDate);
+    calendar.add(Calendar.HOUR, 72);
+    Date finalDate = calendar.getTime();
+    try {
+      blockList = routeBlockRepository.findAllBetween(currentDate, finalDate);
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+    return blockList;
+  }
+
+  private List<ProductOrder> getOrders() {
+    List<ProductOrder> orderList = new ArrayList<>();
+    try {
+      orderList = productOrderRepository.findAllByStateLessThanEqual(OrderState.PROCESSING);
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+    return orderList;
+  }
+
+  private List<Truck> getTrucks() {
+    List<Truck> truckList = new ArrayList<>();
+    try {
+      truckList = truckRepository.findAll();
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+    return truckList;
+  }
+
+  private List<Long> getMaintenanceTrucks() {
+    Date currentDate = new Date();
+    StandardResponse<List<Long>> response = maintenanceService.listByDate(TimeUtil.formatDate(currentDate));
+    if (response.getStatus().equals(HttpStatus.OK)) {
+      return response.getData();
+    }
+    System.out.println("Error al obtener mantenimientos");
+    return new ArrayList<>();
   }
 }
