@@ -30,8 +30,9 @@ public class Truck {
   @Column(name = "depot_ubigeo")
   private String depotUbigeo;
 
-  @OneToMany(mappedBy = "truck")
-  private Set<Breakdown> breakdowns = new LinkedHashSet<>();
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "breakdown_id")
+  private Breakdown breakdown;
 
   @Enumerated
   @Column(name = "status")

@@ -131,7 +131,8 @@ public class BusinessServiceImpl implements BusinessService {
     productOrderRepository.saveAll(filteredList);
   }
 
-  private void updateStatus(List<ProductOrder> orderList, List<Truck> truckList, List<Long> maintenanceTrucks) {
+  @Override
+  public void updateStatus(List<ProductOrder> orderList, List<Truck> truckList, List<Long> maintenanceTrucks) {
     List<ProductOrder> deliveredOrderList = new ArrayList<>();
     List<Truck> updatedTruckList = new ArrayList<>();
 
@@ -217,7 +218,7 @@ public class BusinessServiceImpl implements BusinessService {
     List<TruckAlgorithmRequest> truckAlgorithmList = new ArrayList<>();
     for (Truck t : truckList) {
       if (Objects.nonNull(maintenanceTrucks.stream().filter(id -> t.getId().equals(id)).findFirst().orElse(null))
-              || t.getStatus().equals(TruckStatus.ONROUTE)) {
+              || t.getStatus().equals(TruckStatus.ONROUTE) || t.getStatus().equals(TruckStatus.BROKEDOWN)) {
         continue;
       }
 

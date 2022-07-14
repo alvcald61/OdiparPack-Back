@@ -4,6 +4,7 @@ import com.pucp.odiparpackback.utils.BreakdownType;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Date;
 
 
 @Entity
@@ -21,14 +22,22 @@ public class Breakdown {
   @Column(name = "breakdown_type")
   private BreakdownType breakdownType;
 
+  @Column(name = "start_date")
+  private Date startDate;
+
+  @Column(name = "endDate")
+  private Date endDate;
+
+  @Column(name = "stop_latitude")
+  private Double stopLatitude;
+
+  @Column(name = "stop_longitude")
+  private Double stopLongitude;
+
   @Column(name = "solution_action")
   private String solutionAction;
 
-  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-  @JoinColumn(name = "maintenance_id")
-  private Maintenance maintenance;
-
-  @ManyToOne
+  @OneToOne
   @JoinColumn(name = "truck_id")
   private Truck truck;
 

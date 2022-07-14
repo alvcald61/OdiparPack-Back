@@ -1,5 +1,12 @@
 package com.pucp.odiparpackback.utils;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public enum BreakdownType {
-  SIMPLE, COMPLEX, NONE
+  MODERADA,
+  FUERTE,
+  SINIESTRO;
 }
