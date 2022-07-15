@@ -38,6 +38,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -234,16 +235,19 @@ public class BusinessServiceImpl implements BusinessService {
     }
 
     List<TruckAlgorithmRequest> truckAlgorithmList = new ArrayList<>();
-    for (Truck t : truckList) {
-      if (Objects.nonNull(maintenanceTrucks.stream().filter(id -> t.getId().equals(id)).findFirst().orElse(null))
-              || t.getStatus().equals(TruckStatus.ONROUTE) || t.getStatus().equals(TruckStatus.BROKEDOWN)) {
+    List<Truck> filteredList = truckList.stream().filter(truck -> truck.getStatus().equals(TruckStatus.AVAILABLE)).collect(Collectors.toList());
+    if (filteredList.isEmpty() || excessCapacity(filteredList, orderList)) {
+      filteredList.addAll(truckList.stream().filter(truck -> truck.getStatus().equals(TruckStatus.ONROUTE)).collect(Collectors.toList()));
+    }
+    for (Truck t : filteredList) {
+      if (Objects.nonNull(maintenanceTrucks.stream().filter(id -> t.getId().equals(id)).findFirst().orElse(null))) {
         continue;
       }
 
       TruckAlgorithmRequest truckAlgorithmRequest = TruckAlgorithmRequest.builder()
               .id(t.getId())
               .ubigeo(t.getCurrentCity().getUbigeo())
-              .maxLoad(t.getCapacity())
+              .maxLoad(t.getStatus().equals(TruckStatus.ONROUTE) ? getTruckCapacity(t)  : t.getCapacity())
               .build();
       truckAlgorithmList.add(truckAlgorithmRequest);
     }
@@ -268,6 +272,21 @@ public class BusinessServiceImpl implements BusinessService {
             .truckList(truckAlgorithmList)
             .blockadeList(blockadeAlgorithmList)
             .build();
+  }
+
+  private boolean excessCapacity(List<Truck> filteredList, List<ProductOrder> orderList) {
+    AtomicInteger totalCapacity = new AtomicInteger();
+    AtomicInteger totalPackages = new AtomicInteger();
+    filteredList.forEach(truck -> totalCapacity.addAndGet(truck.getCapacity()));
+    orderList.forEach(order -> totalCapacity.addAndGet(order.getAmount()));
+    return totalCapacity.get() < totalPackages.get();
+  }
+
+  private Integer getTruckCapacity(Truck t) {
+    AtomicInteger load = new AtomicInteger();
+    t.getTransportationPlanList()
+            .forEach(plan -> load.addAndGet(Objects.nonNull(plan.getAmount()) ? plan.getAmount() : 0));
+    return load.get();
   }
 
   private List<City> getCityList() {
