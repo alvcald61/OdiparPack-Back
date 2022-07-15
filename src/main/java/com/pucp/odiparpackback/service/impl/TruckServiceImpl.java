@@ -1,5 +1,6 @@
 package com.pucp.odiparpackback.service.impl;
 
+import com.pucp.odiparpackback.model.Breakdown;
 import com.pucp.odiparpackback.model.City;
 import com.pucp.odiparpackback.model.ProductOrder;
 import com.pucp.odiparpackback.model.TransportationPlan;
@@ -67,17 +68,7 @@ public class TruckServiceImpl implements TruckService {
 
         tpList.sort(((t1, t2) -> (int) (t1.getId() - t2.getId())));
         if (truck.getStatus().equals(TruckStatus.BROKEDOWN)) {
-          truckResponse.setLongitude(truck.getBreakdown().getStopLongitude());
-          truckResponse.setLatitude(truck.getBreakdown().getStopLatitude());
-          tpList.forEach(plan -> planList.add(TransportationPlanResponse.builder()
-                  .idTransportationPlan(plan.getId())
-                  .routeStart(TimeUtil.formatDate(plan.getRouteStart()))
-                  .routeFinish(TimeUtil.formatDate(plan.getRouteFinish()))
-                  .order(createOrderResponse(plan.getOrder()))
-                  .speed(Objects.nonNull(plan.getSpeed()) ? plan.getSpeed().getSpeed() : null)
-                  .amount(plan.getAmount())
-                  .city(objectMapper.mapCity(plan.getCity()))
-                  .build()));
+          mapBreakdown(truck, truckResponse, tpList, planList);
         } else {
           mapTruck(truckResponse, tpList, planList, currentDate);
         }
@@ -122,17 +113,7 @@ public class TruckServiceImpl implements TruckService {
 
     tpList.sort(((t1, t2) -> (int) (t1.getId() - t2.getId())));
     if (truck.getStatus().equals(TruckStatus.BROKEDOWN)) {
-      truckResponse.setLongitude(truck.getBreakdown().getStopLongitude());
-      truckResponse.setLatitude(truck.getBreakdown().getStopLatitude());
-      tpList.forEach(plan -> planList.add(TransportationPlanResponse.builder()
-              .idTransportationPlan(plan.getId())
-              .routeStart(TimeUtil.formatDate(plan.getRouteStart()))
-              .routeFinish(TimeUtil.formatDate(plan.getRouteFinish()))
-              .order(createOrderResponse(plan.getOrder()))
-              .speed(Objects.nonNull(plan.getSpeed()) ? plan.getSpeed().getSpeed() : null)
-              .amount(plan.getAmount())
-              .city(objectMapper.mapCity(plan.getCity()))
-              .build()));
+      mapBreakdown(truck, truckResponse, tpList, planList);
     } else {
       mapTruck(truckResponse, tpList, planList, currentDate);
     }
@@ -181,6 +162,29 @@ public class TruckServiceImpl implements TruckService {
       setTruckLocation(truckResponse, previous, previous, currentDate);
       truckResponse.setStatus(TruckStatus.AVAILABLE);
     }
+  }
+
+  private void mapBreakdown(Truck truck, TruckResponse truckResponse, List<TransportationPlan> tpList, List<TransportationPlanResponse> planList) {
+    Breakdown breakdown = truck.getBreakdown();
+    BreakdownResponse breakdownResponse = BreakdownResponse.builder()
+            .breakdownId(breakdown.getId())
+            .type(breakdown.getBreakdownType())
+            .startDate(TimeUtil.formatDate(breakdown.getStartDate()))
+            .endDate(Objects.nonNull(breakdown.getEndDate()) ? TimeUtil.formatDate(breakdown.getEndDate()) : null)
+            .build();
+
+    truckResponse.setLongitude(truck.getBreakdown().getStopLongitude());
+    truckResponse.setLatitude(truck.getBreakdown().getStopLatitude());
+    truckResponse.setBreakdownResponse(breakdownResponse);
+    tpList.forEach(plan -> planList.add(TransportationPlanResponse.builder()
+            .idTransportationPlan(plan.getId())
+            .routeStart(TimeUtil.formatDate(plan.getRouteStart()))
+            .routeFinish(TimeUtil.formatDate(plan.getRouteFinish()))
+            .order(createOrderResponse(plan.getOrder()))
+            .speed(Objects.nonNull(plan.getSpeed()) ? plan.getSpeed().getSpeed() : null)
+            .amount(plan.getAmount())
+            .city(objectMapper.mapCity(plan.getCity()))
+            .build()));
   }
 
   private ProductOrderResponse createOrderResponse(ProductOrder order) {

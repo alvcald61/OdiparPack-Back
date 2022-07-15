@@ -19,4 +19,10 @@ public class BreakdownResponse {
 
   @JsonProperty("type")
   private BreakdownType type;
+
+  @JsonProperty("startDate")
+  private String startDate;
+
+  @JsonProperty("endDate")
+  private String endDate;
 }

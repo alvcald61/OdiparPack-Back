@@ -87,6 +87,8 @@ public class BreakdownServiceImpl implements BreakdownService {
       BreakdownResponse breakdownResponse = BreakdownResponse.builder()
               .breakdownId(breakdown.getId())
               .type(breakdown.getBreakdownType())
+              .startDate(TimeUtil.formatDate(breakdown.getStartDate()))
+              .endDate(Objects.nonNull(breakdown.getEndDate()) ? TimeUtil.formatDate(breakdown.getEndDate()) : null)
               .build();
       response = new StandardResponse<>(breakdownResponse);
     } catch (Exception ex) {

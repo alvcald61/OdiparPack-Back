@@ -17,6 +17,7 @@ public class TruckResponse {
   private String code;
   private TruckStatus status;
   private CityResponse currentCity;
+  private BreakdownResponse breakdownResponse;
   private Double longitude;
   private Double latitude;
   private List<TransportationPlanResponse> transportationPlanList;
