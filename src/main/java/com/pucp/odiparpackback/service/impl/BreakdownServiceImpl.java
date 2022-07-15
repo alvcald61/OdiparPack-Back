@@ -190,7 +190,7 @@ public class BreakdownServiceImpl implements BreakdownService {
       previous = plan;
     }
 
-    Truck newTruck = getNewTruck(truckList, packageAmount);
+    Truck newTruck = getNewTruck(truckList, packageAmount, truck);
     AlgorithmRequest request = constructAlgorithmRequest(current, newTruck, packageAmount, blockList);
     AlgorithmResponse response = algorithmService.getPath(request);
     DepotAlgorithmResponse depot = response.getDepotList().stream().filter(d -> !d.getTruckList().isEmpty()).findFirst().orElse(null);
@@ -287,7 +287,7 @@ public class BreakdownServiceImpl implements BreakdownService {
             .build();
   }
 
-  private Truck getNewTruck(List<Truck> truckList, int packageAmount) {
+  private Truck getNewTruck(List<Truck> truckList, int packageAmount, Truck truck) {
     List<Truck> available = truckList.stream().filter(t -> t.getStatus().equals(TruckStatus.AVAILABLE)).collect(Collectors.toList());
     if (available.isEmpty()) {
       available = truckList.stream()
@@ -296,6 +296,7 @@ public class BreakdownServiceImpl implements BreakdownService {
     }
 
     available.sort(Comparator.comparingInt(Truck::getCapacity));
+    available.sort((t1, t2) -> (int) (getDistanceTo(t1,truck) - getDistanceTo(t2,truck)));
     for (Truck t : available) {
       if (packageAmount < t.getCapacity()) {
         return t;
@@ -303,6 +304,23 @@ public class BreakdownServiceImpl implements BreakdownService {
     }
 
     return null;
+  }
+
+  private double getDistanceTo(Truck t1, Truck truck) {
+    double lat1 = t1.getCurrentCity().getLatitude();
+    double lon1 = t1.getCurrentCity().getLongitude();
+    double lat2 = truck.getBreakdown().getStopLatitude();
+    double lon2 = truck.getBreakdown().getStopLongitude();
+    double rad, p, left, right, sum, dist = 0;
+    rad = 6371;
+    p = Math.PI / 180;
+
+    left = 0.5 - Math.cos((lat2 - lat1) * p) / 2;
+    right = Math.cos(lat1 * p) * Math.cos(lat2 * p) * (1 - Math.cos((lon2 - lon1) * p)) / 2;
+    sum = left + right;
+
+    dist = 2 * rad * Math.asin(Math.sqrt(sum));
+    return dist;
   }
 
   private Integer getTruckLoad(Truck truck) {
