@@ -64,6 +64,7 @@ public class TruckServiceImpl implements TruckService {
           .code(truck.getCode())
           .status(truck.getStatus())
           .transportationPlanList(planList)
+          .depotUbigeo(truck.getDepotUbigeo())
           .build();
 
         tpList.sort(((t1, t2) -> (int) (t1.getId() - t2.getId())));
