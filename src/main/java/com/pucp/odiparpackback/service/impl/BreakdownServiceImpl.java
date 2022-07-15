@@ -131,28 +131,24 @@ public class BreakdownServiceImpl implements BreakdownService {
     List<TransportationPlan> transportationPlanList = truck.getTransportationPlanList();
     TransportationPlan previous = transportationPlanList.get(0);
     for (TransportationPlan t : transportationPlanList) {
-      if (t.getRouteFinish().after(currentDate)) {
-        previous = t;
-        continue;
-      } else if (!t.getRouteStart().after(currentDate)) {
-        setTruckLocation(breakdown, previous, t, currentDate);
+      if (t.getRouteFinish().after(currentDate) && previous.getRouteFinish().before(currentDate)) {
+        if (t.getRouteStart().before(t.getRouteFinish())) {
+          setTruckLocation(breakdown, previous, t, currentDate);
+          previous = t;
+          continue;
+        } else {
+          City city = previous.getCity();
+          breakdown.setStopLatitude(city.getLatitude());
+          breakdown.setStopLongitude(city.getLongitude());
+        }
       }
-      Date start = t.getRouteStart();
-      Date end = t.getRouteFinish();
-
-      calendar.setTime(start);
-      calendar.add(Calendar.HOUR, 12);
-      t.setRouteStart(calendar.getTime());
-      calendar.setTime(end);
-      calendar.add(Calendar.HOUR, 12);
-      t.setRouteFinish(calendar.getTime());
+      previous = t;
     }
+    transportationPlanList.forEach(this::updatePlan);
 
     calendar.setTime(currentDate);
     calendar.add(Calendar.HOUR, 12);
     breakdown.setEndDate(calendar.getTime());
-
-    truck.setStatus(TruckStatus.BROKEDOWN);
     truck.setBreakdown(breakdown);
 
     transportationPlanRepository.saveAll(transportationPlanList);
@@ -167,30 +163,41 @@ public class BreakdownServiceImpl implements BreakdownService {
     List<City> cityList = getCityList();
     transportationPlanList.sort(((t1, t2) -> (int) (t1.getId() - t2.getId())));
 
+    TransportationPlan current = transportationPlanList.get(0);
     TransportationPlan previous = transportationPlanList.get(0);
     List<TransportationPlan> remainingList = new ArrayList<>();
     int packageAmount = 0;
     for (TransportationPlan plan : transportationPlanList) {
       if (plan.getRouteFinish().after(currentDate)) {
-        packageAmount += plan.getAmount();
+        if (previous.getRouteFinish().before(currentDate)) {
+          if (plan.getRouteStart().before(plan.getRouteFinish())) {
+            setTruckLocation(breakdown, previous, plan, currentDate);
+            previous = plan;
+            continue;
+          } else {
+            City city = previous.getCity();
+            breakdown.setStopLatitude(city.getLatitude());
+            breakdown.setStopLongitude(city.getLongitude());
+          }
+        }
+        packageAmount += Objects.nonNull(plan.getAmount()) ? plan.getAmount() : 0;
         remainingList.add(plan);
       } else {
-        previous = plan;
+        current = plan;
       }
+      previous = plan;
     }
 
     Truck newTruck = getNewTruck(truckList, packageAmount);
-    AlgorithmRequest request = constructAlgorithmRequest(previous, newTruck, packageAmount, blockList);
+    AlgorithmRequest request = constructAlgorithmRequest(current, newTruck, packageAmount, blockList);
     AlgorithmResponse response = algorithmService.getPath(request);
     DepotAlgorithmResponse depot = response.getDepotList().stream().filter(d -> !d.getTruckList().isEmpty()).findFirst().orElse(null);
     TruckAlgorithmResponse truckResponse = depot.getTruckList().get(0);
 
     List<TransportationPlan> newTransportationPlan = new ArrayList<>();
     City previousCity = null;
-    int totalMs = 0;
     for (NodeAlgorithmResponse n : truckResponse.getNodeRoute()) {
       calendar.setTime(currentDate);
-      totalMs += (int) (n.getTravelCost() * 60 * 60 * 1000);
       calendar.add(Calendar.MILLISECOND, (int) (n.getTravelCost() * 60 * 60 * 1000));
 
       City city = cityList.stream().filter(c -> c.getUbigeo().equals(n.getUbigeo())).findFirst().orElse(null);
@@ -207,31 +214,36 @@ public class BreakdownServiceImpl implements BreakdownService {
               .build();
       if (calendar.getTimeInMillis() != currentDate.getTime()) {
         calendar.add(Calendar.HOUR, 1);
-        totalMs += 60 * 60 * 1000;
       }
       currentDate = calendar.getTime();
       newTransportationPlan.add(transportationPlan);
       previousCity = city;
 
-      if (n.getUbigeo().equals(previous.getCity().getUbigeo())) {
+      if (n.getUbigeo().equals(current.getCity().getUbigeo())) {
         break;
       }
     }
 
-    int finalTotalMs = totalMs;
-    remainingList.forEach(plan -> {
+    transportationPlanRepository.deleteAll(transportationPlanList);
+
+    for (TransportationPlan plan : remainingList) {
       plan.setId(null);
-      calendar.setTime(plan.getRouteStart());
-      calendar.add(Calendar.MILLISECOND, finalTotalMs);
+      if (!plan.getRouteStart().equals(plan.getRouteFinish())) {
+        calendar.add(Calendar.HOUR, 1);
+      }
       plan.setRouteStart(calendar.getTime());
-      calendar.setTime(plan.getRouteFinish());
-      calendar.add(Calendar.MILLISECOND, finalTotalMs);
+      calendar.add(Calendar.MILLISECOND, (int) (plan.getRouteFinish().getTime() - plan.getRouteStart().getTime()));
       plan.setRouteFinish(calendar.getTime());
-    });
+    }
     newTransportationPlan.addAll(remainingList);
 
-    transportationPlanRepository.deleteAll(transportationPlanList);
     transportationPlanRepository.saveAll(newTransportationPlan);
+    newTruck.setTransportationPlanList(newTransportationPlan);
+    truck.setTransportationPlanList(new ArrayList<>());
+    truckList.clear();
+    truckList.add(truck);
+    truckList.add(newTruck);
+    truckRepository.saveAll(truckList);
   }
 
   private AlgorithmRequest constructAlgorithmRequest(TransportationPlan lastPlan, Truck truck, int packageAmount, List<RouteBlock> blockList) {
@@ -309,6 +321,19 @@ public class BreakdownServiceImpl implements BreakdownService {
 
     breakdown.setStopLatitude(latitude);
     breakdown.setStopLongitude(longitude);
+  }
+
+  private void updatePlan(TransportationPlan plan) {
+    Calendar calendar = Calendar.getInstance();
+    Date start = plan.getRouteStart();
+    Date end = plan.getRouteFinish();
+
+    calendar.setTime(start);
+    calendar.add(Calendar.HOUR, 12);
+    plan.setRouteStart(calendar.getTime());
+    calendar.setTime(end);
+    calendar.add(Calendar.HOUR, 12);
+    plan.setRouteFinish(calendar.getTime());
   }
 
   private List<ProductOrder> getOrders() {

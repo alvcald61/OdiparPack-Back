@@ -10,6 +10,7 @@ import com.pucp.odiparpackback.algorithm.response.DepotAlgorithmResponse;
 import com.pucp.odiparpackback.algorithm.response.NodeAlgorithmResponse;
 import com.pucp.odiparpackback.algorithm.response.SubOrderResponse;
 import com.pucp.odiparpackback.algorithm.response.TruckAlgorithmResponse;
+import com.pucp.odiparpackback.model.Breakdown;
 import com.pucp.odiparpackback.model.City;
 import com.pucp.odiparpackback.model.ProductOrder;
 import com.pucp.odiparpackback.model.RouteBlock;
@@ -23,6 +24,7 @@ import com.pucp.odiparpackback.repository.TruckRepository;
 import com.pucp.odiparpackback.response.StandardResponse;
 import com.pucp.odiparpackback.service.BusinessService;
 import com.pucp.odiparpackback.service.MaintenanceService;
+import com.pucp.odiparpackback.utils.BreakdownType;
 import com.pucp.odiparpackback.utils.OrderState;
 import com.pucp.odiparpackback.utils.Speed;
 import com.pucp.odiparpackback.utils.TimeUtil;
@@ -140,12 +142,13 @@ public class BusinessServiceImpl implements BusinessService {
       boolean updated = false;
       Date currentDate = new Date();
       Calendar calendar = Calendar.getInstance();
+      List<TransportationPlan> planList = t.getTransportationPlanList();
 
       if (Objects.nonNull(maintenanceTrucks.stream().filter(id -> t.getId().equals(id)).findFirst().orElse(null))) {
         calendar.setTime(t.getMaintenance().getInitialDate());
         calendar.add(Calendar.DAY_OF_WEEK, 1);
         if (t.getMaintenance().getInitialDate().before(currentDate) && calendar.getTime().after(currentDate)) {
-          if (!t.getTransportationPlanList().isEmpty()) {
+          if (!planList.isEmpty()) {
             System.out.println("Truck is carrying load, it should return to closest depot");
           }
           t.setStatus(TruckStatus.MAINTENANCE);
@@ -153,37 +156,52 @@ public class BusinessServiceImpl implements BusinessService {
         }
       }
 
-      if (t.getStatus().equals(TruckStatus.MAINTENANCE)) {
-        calendar.setTime(t.getMaintenance().getInitialDate());
-        calendar.add(Calendar.DAY_OF_WEEK, 1);
-        if (calendar.getTime().before(currentDate)) {
-          t.setStatus(TruckStatus.AVAILABLE);
-          updated = true;
-        }
-      }
-
-      City lastCity = t.getCurrentCity();
-      City updatedCity = null;
-      t.getTransportationPlanList().sort(((t1, t2) -> (int) (t1.getId() - t2.getId())));
-      for (TransportationPlan tPlan : t.getTransportationPlanList()) {
-        ProductOrder po = orderList.stream().filter(o -> o.equals(tPlan.getOrder())).findFirst().orElse(null);
-
-        if (tPlan.getRouteFinish().before(currentDate)) {
-          if (Objects.nonNull(po)) {
-            po.setState(OrderState.DELIVERED);
-            deliveredOrderList.add(po);
+      switch (t.getStatus()) {
+        case MAINTENANCE:
+          calendar.setTime(t.getMaintenance().getInitialDate());
+          calendar.add(Calendar.DAY_OF_WEEK, 1);
+          if (calendar.getTime().before(currentDate)) {
+            t.setStatus(TruckStatus.AVAILABLE);
+            updated = true;
           }
-        } else {
-          updatedCity = lastCity;
-        }
-        lastCity = tPlan.getCity();
-      }
-      if (Objects.nonNull(updatedCity)) {
-        updated = true;
-        t.setCurrentCity(updatedCity);
-      } else if (t.getStatus().equals(TruckStatus.ONROUTE)) {
-        updated = true;
-        t.setStatus(TruckStatus.AVAILABLE);
+          break;
+        case ONROUTE:
+          City lastCity = t.getCurrentCity();
+          planList.sort(((t1, t2) -> (int) (t1.getId() - t2.getId())));
+          TransportationPlan previous = planList.get(0);
+          for (TransportationPlan tPlan : planList) {
+            ProductOrder po = orderList.stream().filter(o -> o.equals(tPlan.getOrder())).findFirst().orElse(null);
+
+            if (tPlan.getRouteFinish().after(currentDate) && previous.getRouteFinish().before(currentDate)) {
+              t.setCurrentCity(previous.getCity());
+            } else if (Objects.nonNull(po) && !po.getState().equals(OrderState.DELIVERED) && tPlan.getRouteFinish().before(currentDate)) {
+              po.setState(OrderState.DELIVERED);
+              deliveredOrderList.add(po);
+            }
+            previous = tPlan;
+          }
+
+          if (previous.getRouteFinish().before(currentDate)) {
+            updated = true;
+            t.setCurrentCity(previous.getCity());
+            t.setStatus(TruckStatus.AVAILABLE);
+          } else if (!lastCity.equals(t.getCurrentCity())) {
+            updated = true;
+          }
+          break;
+        case BROKEDOWN:
+          Breakdown breakdown = t.getBreakdown();
+          if (!breakdown.getBreakdownType().equals(BreakdownType.SINIESTRO) && breakdown.getEndDate().before(currentDate)) {
+            updated = true;
+            t.setStatus(breakdown.getBreakdownType().equals(BreakdownType.MODERADA) ? TruckStatus.ONROUTE : TruckStatus.AVAILABLE);
+            if (breakdown.getBreakdownType().equals(BreakdownType.FUERTE)) {
+              City depot = cityRepository.findByUbigeo(t.getDepotUbigeo());
+              t.setCurrentCity(depot);
+            }
+          }
+          break;
+        default:
+          break;
       }
 
       if (updated) {

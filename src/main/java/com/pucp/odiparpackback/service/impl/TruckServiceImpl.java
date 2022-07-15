@@ -106,7 +106,22 @@ public class TruckServiceImpl implements TruckService {
       .status(truck.getStatus())
       .build();
 
-    mapTruck(truckResponse, tpList, planList, currentDate);
+    tpList.sort(((t1, t2) -> (int) (t1.getId() - t2.getId())));
+    if (truck.getStatus().equals(TruckStatus.BROKEDOWN)) {
+      truckResponse.setLongitude(truck.getBreakdown().getStopLongitude());
+      truckResponse.setLatitude(truck.getBreakdown().getStopLatitude());
+      tpList.forEach(plan -> planList.add(TransportationPlanResponse.builder()
+              .idTransportationPlan(plan.getId())
+              .routeStart(TimeUtil.formatDate(plan.getRouteStart()))
+              .routeFinish(TimeUtil.formatDate(plan.getRouteFinish()))
+              .order(createOrderResponse(plan.getOrder()))
+              .speed(Objects.nonNull(plan.getSpeed()) ? plan.getSpeed().getSpeed() : null)
+              .amount(plan.getAmount())
+              .city(objectMapper.mapCity(plan.getCity()))
+              .build()));
+    } else {
+      mapTruck(truckResponse, tpList, planList, currentDate);
+    }
 
     return new StandardResponse<>(truckResponse);
   }
@@ -117,7 +132,6 @@ public class TruckServiceImpl implements TruckService {
     }
 
     TransportationPlan previous = tpList.get(0);
-    tpList.sort(((t1, t2) -> (int) (t1.getId() - t2.getId())));
     for (TransportationPlan plan : tpList) {
       if (plan.getRouteFinish().after(currentDate) && previous.getRouteFinish().before(currentDate)) {
         if (plan.getRouteStart().before(plan.getRouteFinish())) {
