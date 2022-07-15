@@ -20,5 +20,6 @@ public class TruckResponse {
   private BreakdownResponse breakdownResponse;
   private Double longitude;
   private Double latitude;
+  private String depotUbigeo;
   private List<TransportationPlanResponse> transportationPlanList;
 }
