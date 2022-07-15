@@ -65,8 +65,22 @@ public class TruckServiceImpl implements TruckService {
           .transportationPlanList(planList)
           .build();
 
-        mapTruck(truckResponse, tpList, planList, currentDate);
-
+        tpList.sort(((t1, t2) -> (int) (t1.getId() - t2.getId())));
+        if (truck.getStatus().equals(TruckStatus.BROKEDOWN)) {
+          truckResponse.setLongitude(truck.getBreakdown().getStopLongitude());
+          truckResponse.setLatitude(truck.getBreakdown().getStopLatitude());
+          tpList.forEach(plan -> planList.add(TransportationPlanResponse.builder()
+                  .idTransportationPlan(plan.getId())
+                  .routeStart(TimeUtil.formatDate(plan.getRouteStart()))
+                  .routeFinish(TimeUtil.formatDate(plan.getRouteFinish()))
+                  .order(createOrderResponse(plan.getOrder()))
+                  .speed(Objects.nonNull(plan.getSpeed()) ? plan.getSpeed().getSpeed() : null)
+                  .amount(plan.getAmount())
+                  .city(objectMapper.mapCity(plan.getCity()))
+                  .build()));
+        } else {
+          mapTruck(truckResponse, tpList, planList, currentDate);
+        }
         responseList.add(truckResponse);
 
       }
