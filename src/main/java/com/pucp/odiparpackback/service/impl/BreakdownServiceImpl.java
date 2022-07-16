@@ -226,8 +226,6 @@ public class BreakdownServiceImpl implements BreakdownService {
       }
     }
 
-    transportationPlanRepository.deleteAll(transportationPlanList);
-
     for (TransportationPlan plan : remainingList) {
       plan.setId(null);
       if (!plan.getRouteStart().equals(plan.getRouteFinish())) {
@@ -241,6 +239,7 @@ public class BreakdownServiceImpl implements BreakdownService {
 
     transportationPlanRepository.saveAll(newTransportationPlan);
     newTruck.setTransportationPlanList(newTransportationPlan);
+    newTruck.setStatus(TruckStatus.ONROUTE);
     truck.setTransportationPlanList(new ArrayList<>());
     truckList.clear();
     truckList.add(truck);
