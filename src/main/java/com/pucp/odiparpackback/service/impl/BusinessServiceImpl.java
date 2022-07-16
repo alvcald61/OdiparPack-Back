@@ -167,6 +167,8 @@ public class BusinessServiceImpl implements BusinessService {
           }
           break;
         case ONROUTE:
+          if (planList.isEmpty())
+            break;
           City lastCity = t.getCurrentCity();
           planList.sort(((t1, t2) -> (int) (t1.getId() - t2.getId())));
           TransportationPlan previous = planList.get(0);

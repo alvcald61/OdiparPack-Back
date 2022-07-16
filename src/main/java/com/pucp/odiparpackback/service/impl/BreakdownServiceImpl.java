@@ -237,7 +237,7 @@ public class BreakdownServiceImpl implements BreakdownService {
     }
     newTransportationPlan.addAll(remainingList);
 
-    transportationPlanRepository.saveAll(newTransportationPlan);
+    newTransportationPlan = transportationPlanRepository.saveAll(newTransportationPlan);
     newTruck.setTransportationPlanList(newTransportationPlan);
     newTruck.setStatus(TruckStatus.ONROUTE);
     truck.setTransportationPlanList(new ArrayList<>());
