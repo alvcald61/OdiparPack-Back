@@ -183,13 +183,14 @@ public class BreakdownServiceImpl implements BreakdownService {
           }
         }
         packageAmount += Objects.nonNull(plan.getAmount()) ? plan.getAmount() : 0;
-        remainingList.add(new TransportationPlan(plan));
+        remainingList.add(new TransportationPlan(previous));
       } else {
         current = plan;
       }
       previous = plan;
     }
 
+    remainingList.add(new TransportationPlan(previous));
     Truck newTruck = getNewTruck(truckList, packageAmount, truck);
     AlgorithmRequest request = constructAlgorithmRequest(current, newTruck, packageAmount, blockList);
     AlgorithmResponse response = algorithmService.getPath(request);
@@ -224,6 +225,11 @@ public class BreakdownServiceImpl implements BreakdownService {
       if (n.getUbigeo().equals(current.getCity().getUbigeo())) {
         break;
       }
+    }
+
+    if (!remainingList.isEmpty()) {
+      newTransportationPlan.add(transportationPlanList.get(0));
+      calendar.add(Calendar.HOUR, -1);
     }
 
     for (TransportationPlan plan : remainingList) {
