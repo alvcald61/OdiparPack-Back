@@ -183,7 +183,7 @@ public class BreakdownServiceImpl implements BreakdownService {
           }
         }
         packageAmount += Objects.nonNull(plan.getAmount()) ? plan.getAmount() : 0;
-        remainingList.add(plan);
+        remainingList.add(new TransportationPlan(plan));
       } else {
         current = plan;
       }

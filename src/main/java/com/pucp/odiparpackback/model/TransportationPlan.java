@@ -37,4 +37,13 @@ public class TransportationPlan {
 
   @Column(name = "amount")
   private Integer amount;
+
+  public TransportationPlan(TransportationPlan plan) {
+    order = plan.getOrder();
+    routeFinish = plan.getRouteFinish();
+    routeStart = plan.getRouteStart();
+    city = plan.getCity();
+    speed = plan.getSpeed();
+    amount = plan.getAmount();
+  }
 }
