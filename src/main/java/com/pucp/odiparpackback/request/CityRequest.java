@@ -17,4 +17,6 @@ public class CityRequest {
   private String ubigeo;
 
   private String region;
+
+  private Integer ordersDeliveredCounter;
 }

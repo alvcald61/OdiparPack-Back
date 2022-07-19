@@ -77,7 +77,10 @@ public class ObjectMapper {
 
   public CityRequest cityToDto(City source) {
     CityRequest cityDto = map(source, CityRequest.class);
+    Integer count = cityRepository.getDeliveryCount(source.getUbigeo());
     cityDto.setRegion(source.getRegion().name());
+    log.trace("Count of city {}: {}", source.getUbigeo(), count);
+    cityDto.setOrdersDeliveredCounter(count);
     return cityDto;
   }
 
